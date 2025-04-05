@@ -25,6 +25,7 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
+# IGNORE THIS SHIT NIGGA
 AI_RESPONSES = {
     "default": [
         "That's an interesting question. Let me help you understand this better.",
@@ -62,30 +63,6 @@ AI_RESPONSES = {
         "The historical evidence suggests that this occurred due to..."
     ]
 }
-
-@app.route('/group/<group_id>')
-@login_required
-def group(group_id):
-    group = Group.query.get_or_404(group_id)
-    return render_template('group.html', group=group)
-@app.context_processor
-def inject_popular_groups():
-    def get_popular_groups(limit=3):
-        # Query all groups with their member counts
-        groups = Group.query.all()
-        
-        # Sort groups by their member count (descending)
-        groups_sorted = sorted(
-            groups,
-            key=lambda g: g.members.count(),  # This properly counts the members
-            reverse=True
-        )
-        
-        # Return the top 'limit' groups
-        return groups_sorted[:limit]
-    
-    return dict(get_popular_groups=get_popular_groups)
-
 def get_est_time():
     # Get current UTC time
     utc_now = datetime.utcnow()
@@ -246,10 +223,40 @@ def generate_ai_response(user_message, conversation_history=None):
 # Import routes after models to avoid circular imports
 from routes import *
 
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        # Create admin user if it doesn't exist
+with app.app_context():
+    db.create_all()
+    # Create admin user if it doesn't exist
+    admin = User.query.filter_by(email='admin@marinet.edu').first()
+    if not admin:
+        admin = User(
+            username='admin',
+            email='admin@marinet.edu',
+            password=generate_password_hash('admin123'),
+            avatar_url='/static/default_avatar.png'
+        )
+        db.session.add(admin)
+        db.session.commit()  # Commit to get the admin ID
+        
+        # Create sample groups
+        groups = [
+            {
+                'name': 'Math Club',
+                'description': 'A group for math enthusiasts to share problems and solutions.',
+                'icon': 'calculator'
+            },
+            {
+                'name': 'Science Club',
+                'description': 'Discuss scientific discoveries and experiments.',
+                'icon': 'lightbulb'
+            },
+            {
+                'name': 'Literature Society',
+                'description': 'For those who love reading and discussing books.',
+                'icon': 'book'
+            }
+        ]
+        
+        # Get the admin user ID
         admin = User.query.filter_by(email='admin@marinet.edu').first()
         if not admin:
             admin = User(
@@ -258,55 +265,22 @@ if __name__ == '__main__':
                 password=generate_password_hash('admin123'),
                 avatar_url='/static/default_admin_avatar.jpg'
             )
-            db.session.add(admin)
-            db.session.commit()  # Commit to get the admin ID
-            
-            # Create sample groups
-            groups = [
-                {
-                    'name': 'K-Pop Club',
-                    'description': 'For fans of K-Pop music and culture.',
-                    'icon': 'music-note'
-                },
-                {
-                    'name': 'Science Club',
-                    'description': 'Discuss scientific discoveries and experiments.',
-                    'icon': 'lightbulb'
-                },
-                {
-                    'name': 'Environmental Awareness',
-                    'description': 'For those passionate about the environment.',
-                    'icon': 'tree'
-                }
-            ]
-            
-            
-            # Get the admin user ID
-            admin = User.query.filter_by(email='admin@marinet.edu').first()
-            
-            for group_data in groups:
-                group = Group(
-                    name=group_data['name'],
-                    description=group_data['description'],
-                    icon=group_data['icon'],
-                    created_by=admin.id
-                )
-                db.session.add(group)
-            
-            db.session.commit()
-            
-            # Add admin as member of all groups
-            for group in Group.query.all():
-                stmt = group_members.insert().values(
-                    user_id=admin.id,
-                    group_id=group.id,
-                    is_admin=True
-                )
-                db.session.execute(stmt)
-            
-            db.session.commit()
-    
-    app.run(debug=True)
+            db.session.add(group)
+        
+        db.session.commit()
+        
+        # Add admin as member of all groups
+        for group in Group.query.all():
+            stmt = group_members.insert().values(
+                user_id=admin.id,
+                group_id=group.id,
+                is_admin=True
+            )
+            db.session.execute(stmt)
+        
+        db.session.commit()
+
+app.run(debug=True)
 
 # Add Jinja2 filters
 @app.template_filter('nl2br')
