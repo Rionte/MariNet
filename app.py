@@ -262,9 +262,9 @@ with app.app_context():
         # Create sample groups
         groups = [
             {
-                'name': 'Math Club',
-                'description': 'A group for math enthusiasts to share problems and solutions.',
-                'icon': 'calculator'
+                'name': 'K-Pop Club',
+                'description': 'For fans of K-Pop music and culture.',
+                'icon': 'music-note'
             },
             {
                 'name': 'Science Club',
@@ -272,9 +272,9 @@ with app.app_context():
                 'icon': 'lightbulb'
             },
             {
-                'name': 'Literature Society',
-                'description': 'For those who love reading and discussing books.',
-                'icon': 'book'
+                'name': 'Environmental Awareness Club',
+                'description': 'Promote environmental awareness and sustainability.',
+                'icon': 'tree'
             }
         ]
         
