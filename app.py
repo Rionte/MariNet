@@ -254,7 +254,7 @@ with app.app_context():
             username='admin',
             email='admin@marinet.edu',
             password=generate_password_hash('admin123'),
-            avatar_url='/static/default_avatar.png'
+            avatar_url='/static/default_admin_avatar.png'
         )
         db.session.add(admin)
         db.session.commit()  # Commit to get the admin ID
