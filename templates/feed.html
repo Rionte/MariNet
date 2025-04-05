@@ -9,11 +9,11 @@
         <div class="col-lg-8">
             <!-- Post creation for logged in users -->
             {% if current_user.is_authenticated %}
-            <div class="card mb-4 border-0 rounded-4 shadow-sm">
+            <div class="card-body mb-4 border-0 rounded-4 shadow-sm">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center mb-3">
                         <img src="{{ current_user.avatar_url }}" alt="{{ current_user.username }}" class="avatar me-2">
-                        <h5 class="card-title mb-0">Create a Post</h5>
+                        <h5 class="card-body card-title mb-0">Create a Post</h5>
                     </div>
                     <form autocomplete="off" action="{{ url_for('create_post') }}" method="post" enctype="multipart/form-data">
                         <div class="mb-3">
@@ -50,7 +50,7 @@
                             <img src="{{ post.user.avatar_url }}" alt="{{ post.user.username }}" class="avatar me-2">
                             <div>
                                 <h6 class="mb-0 fw-bold">{{ post.user.username }}</h6>
-                                <small class="text-muted">{{ post.created_at.strftime('%b %d, %Y at %I:%M %p') }}</small>
+                                <small class="text-white">{{ post.created_at.strftime('%b %d, %Y at %I:%M %p') }}</small>
                             </div>
                             <div class="dropdown ms-auto">
                                 <button class="btn btn-sm btn-light rounded-circle" type="button" id="dropdownMenuButton{{ post.id }}" data-bs-toggle="dropdown" aria-expanded="false">
@@ -58,7 +58,6 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton{{ post.id }}">
                                     <li><a class="dropdown-item" href="{{ url_for('profile', user_id=post.user_id) }}"><i class="bi bi-person me-2"></i>View Profile</a></li>
-                                    <li><a class="dropdown-item" href="#"><i class="bi bi-bookmark me-2"></i>Save Post</a></li>
                                     {% if current_user.is_authenticated and current_user.id == post.user_id %}
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
@@ -98,13 +97,13 @@
         <!-- Right sidebar -->
         <div class="col-lg-4">
             <div class="card mb-4 border-0 rounded-4 shadow-sm sticky-top" style="top: 1rem; z-index: 100;">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-search me-2"></i>Search Users</h5>
+                <div class="card-body border-0 pt-2 items-center p-3px" style="border-bottom-left-radius: 0; border-bottom-right-radius: 0;">
+                    <h5 class="card-body mb-0 fw-bold bg-main pb-0"><i class="bi bi-search me-2"></i>Search Users</h5>
                 </div>
-                <div class="card-body">
-                    <div class="input-group">
+                <div class="card-body" style="border-top-left-radius: 0; border-top-right-radius: 0;">
+                    <div class="input-group bg-light rounded-pill shadow-sm">
                         <input type="text" class="form-control rounded-start-pill border-end-0" id="userSearch" placeholder="Search users...">
-                        <button class="btn btn-primary rounded-end-pill" type="button" id="searchButton">
+                        <button class="btn btn-primary rounded-end-pill pt-0" type="button" id="searchButton">
                             <i class="bi bi-search"></i>
                         </button>
                     </div>
@@ -112,11 +111,11 @@
                 </div>
             </div>
             
-            <div class="card mb-4 border-0 rounded-4 shadow-sm">
-                <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-people-fill me-2"></i>Join Groups</h5>
+            <div class="card-body mb-2 rounded-4 shadow-sm">
+                <div class="card-body pt-3 pl-3px pr-3px">
+                    <h5 class="card-body fw-bold text-center"><i class="bi bi-people-fill me-2"></i>Join Groups</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body text-center p-4">
                     <p>Connect with peers in groups to share resources and discuss topics.</p>
                     <a href="{{ url_for('groups') }}" class="btn btn-primary rounded-pill">
                         <i class="bi bi-plus-lg me-1"></i> Browse Groups
@@ -124,8 +123,8 @@
                 </div>
             </div>
             
-            <div class="card border-0 rounded-4 shadow-sm pb-3">
-                <div class="card-header bg-white border-0 pt-3">
+            <div class="card-body border-0 rounded-8 shadow-sm pb-3 mt-4">
+                <div class="card-header border-0 pt-3">
                     <h5 class="mb-0 fw-bold text-center"></i>Trending Tags</h5>
                 </div>
                 <div class="d-flex flex-wrap gap-2 justify-content-center ps-2 pe-2">

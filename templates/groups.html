@@ -54,9 +54,9 @@
         {% if not other_groups %}
         <div class="card rounded-3 shadow-sm">
             <div class="card-body text-center py-5">
-                <i class="bi bi-search fs-1 text-muted mb-3"></i>
+                <i class="bi bi-search fs-1 card-title mb-3"></i>
                 <h5>No groups found</h5>
-                <p class="text-muted">
+                <p class="card-title">
                     {% if current_user.is_authenticated %}
                     Create your own group or check back later!
                     {% else %}

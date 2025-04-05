@@ -6,9 +6,9 @@
 <div class="container py-4">
     <div class="row">
         <div class="col-lg-8 mx-auto">
-            <div class="card shadow">
-                <div class="card-header">
-                    <h3 class="mb-0">Account Settings</h3>
+            <div class="card-body shadow">
+                <div class="card-body">
+                    </h4 class="p-5">Account Settings</>
                 </div>
                 <div class="card-body">
                     {% if error %}
@@ -26,7 +26,7 @@
                                 <div class="mb-3">
                                     <label for="avatar" class="form-label">Profile Picture</label>
                                     <input class="form-control form-control-sm" type="file" id="avatar" name="avatar" accept="image/*">
-                                    <div class="form-text">JPG, PNG or GIF. Max 2MB.</div>
+                                    <div class="card-title">JPG, PNG or GIF. Max 2MB.</div>
                                 </div>
                             </div>
                             <div class="col-md-8">
@@ -37,7 +37,7 @@
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email</label>
                                     <input type="email" class="form-control" id="email" value="{{ current_user.email }}" disabled>
-                                    <div class="form-text">Email cannot be changed</div>
+                                    <div class="card-title form-text">Email cannot be changed</div>
                                 </div>
                                 <div class="mb-3">
                                     <label for="bio" class="form-label">Bio</label>

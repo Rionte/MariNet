@@ -700,6 +700,8 @@ img.avatar, img.avatar-sm, img.avatar-small, img.profile-avatar {
     font-size: 0.875rem;
     line-height: 1.2;
   }
+  .colorchange {
+    color: white;}
 
   @media (max-width: 768px) {
     .avatar-sm {
@@ -711,6 +713,16 @@ img.avatar, img.avatar-sm, img.avatar-small, img.profile-avatar {
     .user-email {
       font-size: 0.8rem;
     }
+  }
+
+.change {
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+  .card-body {
+    background-color: var(--bg-card);
+    border-radius: 0.5rem;
   }
   
   .card-header:first-child {
@@ -744,12 +756,12 @@ img.avatar, img.avatar-sm, img.avatar-small, img.profile-avatar {
     /* Background and text colors */
     --bg-main: #f8f9fa;
     --bg-card: #ffffff;
+    --bg-sidebar: #ffffff;
     --text-main: #343a40;
     --text-secondary: #6c757d;
     --border-color: #e9ecef;
 }
 
-/* Dark theme variables */
 [data-theme="dark"] {
     --primary-color: #3b82f6;
     --secondary-color: #1e293b;
@@ -757,6 +769,7 @@ img.avatar, img.avatar-sm, img.avatar-small, img.profile-avatar {
     /* Background and text colors */
     --bg-main: #131a27;
     --bg-card: #1e293b;
+    --bg-sidebar: #1a2232;
     --text-main: #f3f4f6;
     --text-secondary: #b1b1b1;
     --border-color: #2d3748;
@@ -767,7 +780,8 @@ img.avatar, img.avatar-sm, img.avatar-small, img.profile-avatar {
     --gray-color: #b1b1b1;
     --gray-light-color: #2d3748;
     --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.2);
-}
+}   
+
 
 /* Apply theme variables throughout the CSS */
 body {
@@ -828,7 +842,9 @@ a {
 
 /* Main content */
 .main-content {
+    padding: 2rem;
     background-color: var(--bg-main);
+    min-height: 100vh;
 }
 
 /* Right sidebar */
@@ -875,9 +891,6 @@ a {
     color: var(--text-secondary);
 }
 
-.vote-btn:hover {
-    background-color: var(--light-color);
-}
 
 .empty-state-icon {
     color: var(--text-secondary);
