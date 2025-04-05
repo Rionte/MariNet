@@ -914,6 +914,7 @@ a {
     cursor: pointer;
     transition: var(--transition);
     box-shadow: var(--box-shadow);
+    margin-top: 50px;
 }
 
 .theme-toggle:hover {
