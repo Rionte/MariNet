@@ -29,7 +29,11 @@
         {% for message in messages %}
             <div class="message-wrapper {% if message.is_user %}user-message{% else %}ai-message{% endif %}">
                 <div class="message-icon">
-                    <i class="bi {% if message.is_user %}bi-person-fill{% else %}bi-robot{% endif %}"></i>
+                    {% if message.is_user %}
+                        <img src="/static/default_avatar.jpg" alt="test3" class="avatar-sm rounded-circle">
+                    {% else %}
+                        <i class="bi bi-robot"></i>
+                    {% endif %}
                 </div>
                 <div class="message-body">
                     <div class="message-content markdown-content">
@@ -151,9 +155,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const iconDiv = document.createElement('div');
         iconDiv.className = 'message-icon';
         
-        const icon = document.createElement('i');
-        icon.className = `bi ${isUser ? 'bi-person-fill' : 'bi-robot'}`;
-        iconDiv.appendChild(icon);
+        if (isUser) {
+            const img = document.createElement('img');
+            img.className = 'avatar-sm rounded-circle';
+            img.src = "/static/default_avatar.jpg";
+            iconDiv.appendChild(img);
+        } else {
+            const icon = document.createElement('i');
+            icon.className = `bi bi-robot`;
+            iconDiv.appendChild(icon);
+        }
         
         // Create message body
         const bodyDiv = document.createElement('div');
