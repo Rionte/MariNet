@@ -63,10 +63,10 @@
                         <a href="{{ url_for('profile', user_id=current_user.id) }}" class="user-profile-link">
                             <img src="{{ current_user.avatar_url }}" alt="{{ current_user.username }}" class="avatar-sm rounded-circle">
                             <div class="user-info">
-                                <div class="username">{{ current_user.username }}</div>
-                                <div class="user-email">{{ current_user.email }}</div>
+                                <div class="username" title="{{ current_user.username }}">{{ current_user.username }}</div>
+                                <div class="user-email" title="{{ current_user.email }}">{{ current_user.email }}</div>
                             </div>
-                        </a>
+                        </a>                        
                     </div>
                     
                     <div class="logout-section">
