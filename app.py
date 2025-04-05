@@ -25,7 +25,6 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-# IGNORE THIS SHIT NIGGA
 AI_RESPONSES = {
     "default": [
         "That's an interesting question. Let me help you understand this better.",
