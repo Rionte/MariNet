@@ -45,7 +45,7 @@
             {% if posts %}
                 {% for post in posts %}
                 <div class="card mb-4 post-card border-0 rounded-4 shadow-sm" id="post-{{ post.id }}">
-                    <div class="card-body p-4">
+                    <div class="card-body post-card p-4">
                         <div class="d-flex align-items-center mb-3">
                             <img src="{{ post.user.avatar_url }}" alt="{{ post.user.username }}" class="avatar me-2">
                             <div>

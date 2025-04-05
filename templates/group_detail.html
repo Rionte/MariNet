@@ -11,7 +11,7 @@
             </div>
             <div>
                 <h1 class="mb-1">{{ group.name }}</h1>
-                <p class="text-muted mb-1">{{ group.members_count }} {% if group.members_count == 1 %}member{% else %}members{% endif %}</p>
+                <p class="card-title mb-1">{{ group.members_count }} {% if group.members_count == 1 %}member{% else %}members{% endif %}</p>
                 <p class="mb-0">{{ group.description }}</p>
             </div>
         </div>
@@ -58,9 +58,9 @@
             {% if not posts %}
                 <div class="card mb-4">
                     <div class="card-body text-center py-5">
-                        <i class="bi bi-chat-square-text fs-1 text-muted mb-3"></i>
+                        <i class="bi bi-chat-square-text fs-1 card-title mb-3"></i>
                         <h5>No posts yet</h5>
-                        <p class="text-muted">Be the first to share something with this group!</p>
+                        <p class="card-title">Be the first to share something with this group!</p>
                     </div>
                 </div>
             {% else %}
@@ -71,7 +71,7 @@
                             <img src="{{ post.user.avatar_url }}" alt="{{ post.user.username }}" class="avatar me-2">
                             <div>
                                 <h6 class="mb-0">{{ post.user.username }}</h6>
-                                <small class="text-muted">{{ post.created_at.strftime('%b %d, %Y at %I:%M %p') }}</small>
+                                <small class="card-title">{{ post.created_at.strftime('%b %d, %Y at %I:%M %p') }}</small>
                             </div>
                         </div>
                         <p class="card-text">{{ post.content }}</p>
@@ -100,25 +100,25 @@
         </div>
         
         <div class="col-md-4">
-            <div class="card mb-4">
-                <div class="card-header">
+            <div class="card card-body mb-4">
+                <div class="card-header card-body">
                     <h5 class="mb-0">About this group</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body post-card">
                     <p><i class="bi bi-info-circle me-2"></i> {{ group.description }}</p>
                     <p><i class="bi bi-people me-2"></i> {{ group.members_count }} members</p>
                     <p><i class="bi bi-calendar-event me-2"></i> Created on {{ group.created_at.strftime('%b %d, %Y') }}</p>
                 </div>
             </div>
             
-            <div class="card mb-4">
-                <div class="card-header">
+            <div class="card mb-4 card-body">
+                <div class="card-header card-body">
                     <h5 class="mb-0">Admins</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body post-card">
                     <ul class="list-group list-group-flush">
                         {% for admin in admins %}
-                        <li class="list-group-item px-0">
+                        <li class="list-group-item px-0 card-body">
                             <div class="d-flex align-items-center">
                                 <img src="{{ admin.avatar_url }}" alt="{{ admin.username }}" class="avatar small me-2">
                                 <a href="{{ url_for('profile', user_id=admin.id) }}" class="text-decoration-none">{{ admin.username }}</a>
@@ -129,14 +129,14 @@
                 </div>
             </div>
             
-            <div class="card">
-                <div class="card-header">
+            <div class="card card-body">
+                <div class="card-header card-body">
                     <h5 class="mb-0">Members</h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body post-card">
                     <ul class="list-group list-group-flush">
                         {% for member in members %}
-                        <li class="list-group-item px-0">
+                        <li class="list-group-item px-0 card-body">
                             <div class="d-flex align-items-center">
                                 <img src="{{ member.avatar_url }}" alt="{{ member.username }}" class="avatar small me-2">
                                 <a href="{{ url_for('profile', user_id=member.id) }}" class="text-decoration-none">{{ member.username }}</a>

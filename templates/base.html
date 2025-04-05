@@ -62,6 +62,13 @@
                                 <span>AI Tutor</span>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == url_for('anonymous_chat') %}active{% endif %}" 
+                               href="{{ url_for('anonymous_chat') }}">
+                                <i class="bi bi-incognito"></i>
+                                <span>Anonymous Chat</span>
+                            </a>
+                        </li>
                     </ul>
                     
                     <div class="profile-section mt-auto">

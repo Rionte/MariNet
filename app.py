@@ -146,6 +146,7 @@ class Group(db.Model):
             group_id=self.id
         ).first()
         return membership and membership.is_admin if membership else False
+
     
 class GroupPost(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))

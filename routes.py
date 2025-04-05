@@ -9,6 +9,73 @@ from app import app, db, User, Post, Vote, Group, GroupPost, AiConversation, AiM
 import re
 from collections import Counter
 
+from flask_socketio import SocketIO, emit, join_room, leave_room
+import random
+import uuid
+
+# Initialize SocketIO with your Flask app
+socketio = SocketIO(app)
+
+# Anonymous name generation
+animal_names = ["Penguin", "Giraffe", "Koala", "Tiger", "Dolphin", "Eagle", "Fox", "Panda"]
+colors = ["Red", "Blue", "Green", "Purple", "Orange", "Teal", "Pink", "Yellow"]
+
+# Store for active anonymous users
+anonymous_users = {}
+
+@app.route('/anonymous_chat')
+@login_required
+def anonymous_chat():
+    
+    if 'anonymous_id' not in session or session['anonymous_id'] not in anonymous_users:
+        session['anonymous_id'] = str(uuid.uuid4())
+        random_name = f"{random.choice(colors)} {random.choice(animal_names)}"
+        anonymous_users[session['anonymous_id']] = {
+            'name': random_name,
+            'user_id': current_user.id
+        }
+    
+    return render_template('anonymous_chat.html', 
+                          anonymous_name=anonymous_users[session['anonymous_id']]['name'])
+
+@socketio.on('join')
+def on_join(data):
+    room = data['room']
+    join_room(room)
+    emit('status', {
+        'username': 'System',
+        'message': f"{anonymous_users[session['anonymous_id']]['name']} has entered the chat",
+        'timestamp': datetime.now().strftime('%H:%M')
+    }, room=room)
+
+@socketio.on('leave')
+def on_leave(data):
+    room = data['room']
+    leave_room(room)
+    emit('status', {
+        'username': 'System',
+        'message': f"{anonymous_users[session['anonymous_id']]['name']} has left the chat",
+        'timestamp': datetime.now().strftime('%H:%M')
+    }, room=room)
+
+@socketio.on('message')
+def handle_message(data):
+    room = data['room']
+    emit('message', {
+        'username': anonymous_users[session['anonymous_id']]['name'],
+        'message': data['message'],
+        'timestamp': datetime.now().strftime('%H:%M')
+    }, room=room)
+
+# Optional: Reset anonymous identity
+@app.route('/reset_anonymous_identity')
+@login_required
+def reset_anonymous_identity():
+    if 'anonymous_id' in session:
+        anonymous_users.pop(session['anonymous_id'], None)
+        session.pop('anonymous_id')
+    
+    return redirect(url_for('anonymous_chat'))
 
 # Helper functions
 def allowed_file(filename):
