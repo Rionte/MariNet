@@ -61,7 +61,11 @@
                                     <li><a class="dropdown-item" href="#"><i class="bi bi-bookmark me-2"></i>Save Post</a></li>
                                     {% if current_user.is_authenticated and current_user.id == post.user_id %}
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2"></i>Delete Post</a></li>
+                                    <li>
+                                        <form action="{{ url_for('delete_post', post_id=post.id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this post?');" class="delete-post-form">
+                                            <button type="submit" class="dropdown-item text-danger"><i class="bi bi-trash me-2"></i>Delete Post</button>
+                                        </form>
+                                    </li>
                                     {% endif %}
                                 </ul>
                             </div>
@@ -112,15 +116,16 @@
         <div class="col-lg-4">
             <div class="card mb-4 border-0 rounded-4 shadow-sm sticky-top" style="top: 1rem; z-index: 100;">
                 <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-search me-2"></i>Search</h5>
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-search me-2"></i>Search Users</h5>
                 </div>
                 <div class="card-body">
                     <div class="input-group">
-                        <input type="text" class="form-control rounded-start-pill border-end-0" placeholder="Search...">
-                        <button class="btn btn-primary rounded-end-pill" type="button">
+                        <input type="text" class="form-control rounded-start-pill border-end-0" id="userSearch" placeholder="Search users...">
+                        <button class="btn btn-primary rounded-end-pill" type="button" id="searchButton">
                             <i class="bi bi-search"></i>
                         </button>
                     </div>
+                    <div class="search-results mt-3" id="searchResults"></div>
                 </div>
             </div>
             
@@ -142,12 +147,12 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex flex-wrap gap-2">
-                        <a href="#" class="trending-tag">#Mathematics</a>
-                        <a href="#" class="trending-tag">#Physics</a>
-                        <a href="#" class="trending-tag">#Chemistry</a>
-                        <a href="#" class="trending-tag">#Literature</a>
-                        <a href="#" class="trending-tag">#History</a>
-                        <a href="#" class="trending-tag">#ComputerScience</a>
+                        <a href="#" class="trending-tag" data-tag="Mathematics">#Mathematics</a>
+                        <a href="#" class="trending-tag" data-tag="Physics">#Physics</a>
+                        <a href="#" class="trending-tag" data-tag="Chemistry">#Chemistry</a>
+                        <a href="#" class="trending-tag" data-tag="Literature">#Literature</a>
+                        <a href="#" class="trending-tag" data-tag="History">#History</a>
+                        <a href="#" class="trending-tag" data-tag="ComputerScience">#ComputerScience</a>
                     </div>
                 </div>
             </div>
@@ -212,6 +217,33 @@
         overflow: hidden;
         margin-top: 1rem;
     }
+    
+    /* Delete post form */
+    .delete-post-form {
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* Search results */
+    .search-results {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .search-results .list-group-item {
+        padding: 0.5rem 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    .search-results .list-group-item:hover {
+        background-color: #f8f9fa;
+        transform: translateY(-1px);
+    }
+    
+    .avatar {
+        border-radius: 50%;
+        object-fit: cover;
+    }
 </style>
 {% endblock %}
 
@@ -223,6 +255,100 @@ document.addEventListener('DOMContentLoaded', function() {
     const imagePreview = document.getElementById('imagePreview');
     const previewContainer = document.querySelector('.image-preview-container');
     const removeImageBtn = document.getElementById('removeImage');
+    
+    // User search functionality YAHHHHHHHHHHH
+    const userSearchInput = document.getElementById('userSearch');
+    const searchButton = document.getElementById('searchButton');
+    const searchResults = document.getElementById('searchResults');
+    
+    if (userSearchInput && searchButton) {
+        // Search on button click
+        searchButton.addEventListener('click', function() {
+            performSearch();
+        });
+        
+        // Search on enter key
+        userSearchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performSearch();
+            }
+        });
+        
+        // Search as user types (don't ask)
+        let debounceTimer;
+        userSearchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            if (this.value.length >= 2) {
+                debounceTimer = setTimeout(performSearch, 300);
+            } else {
+                searchResults.innerHTML = '';
+            }
+        });
+        
+        function performSearch() {
+            const query = userSearchInput.value.trim();
+            if (query.length < 2) {
+                searchResults.innerHTML = '';
+                return;
+            }
+            
+            fetch(`/api/search-users?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    searchResults.innerHTML = '';
+                    
+                    if (data.length === 0) {
+                        searchResults.innerHTML = '<p class="text-muted text-center my-3">No users found</p>';
+                        return;
+                    }
+                    
+                    const resultsList = document.createElement('div');
+                    resultsList.className = 'list-group';
+                    
+                    data.forEach(user => {
+                        const userItem = document.createElement('a');
+                        userItem.href = `/profile/${user.id}`;
+                        userItem.className = 'list-group-item list-group-item-action d-flex align-items-center';
+                        
+                        const avatar = document.createElement('img');
+                        avatar.src = user.avatar_url;
+                        avatar.alt = user.username;
+                        avatar.className = 'avatar me-2';
+                        avatar.style.width = '32px';
+                        avatar.style.height = '32px';
+                        
+                        const username = document.createElement('span');
+                        username.textContent = user.username;
+                        
+                        userItem.appendChild(avatar);
+                        userItem.appendChild(username);
+                        
+                        resultsList.appendChild(userItem);
+                    });
+                    
+                    searchResults.appendChild(resultsList);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    searchResults.innerHTML = '<p class="text-danger text-center my-3">Error performing search</p>';
+                });
+        }
+    }
+    
+    // Trending tags functionality
+    const trendingTags = document.querySelectorAll('.trending-tag');
+    trendingTags.forEach(tag => {
+        tag.addEventListener('click', function(e) {
+            e.preventDefault();
+            const tagName = this.dataset.tag;
+            const contentField = document.getElementById('content');
+            if (contentField) {
+                contentField.value = contentField.value + ' #' + tagName + ' ';
+                contentField.focus();
+            }
+        });
+    });
     
     if (imageInput) {
         imageInput.addEventListener('change', function() {
