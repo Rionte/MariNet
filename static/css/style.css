@@ -1,0 +1,666 @@
+/* Reset and base styles */
+:root {
+    --primary-color: #007bff;
+    --secondary-color: #f0f5ff;
+    --dark-color: #343a40;
+    --light-color: #f8f9fa;
+    --gray-color: #6c757d;
+    --gray-light-color: #e9ecef;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --border-radius: 0.375rem;
+    --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --transition: all 0.3s ease;
+    --upvote-color: #FF4500;   /* Reddit's upvote orange color */
+    --downvote-color: #7193FF; /* Reddit's downvote blue color */
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #f8f9fa;
+    color: var(--dark-color);
+}
+
+a {
+    text-decoration: none;
+    color: var(--primary-color);
+}
+
+/* Layout */
+.container-fluid {
+    padding: 0;
+}
+
+.row {
+    margin: 0;
+}
+
+/* Sidebar styles */
+.sidebar-container {
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    border-right: 1px solid var(--gray-light-color);
+    background-color: white;
+    z-index: 1000;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1rem 0;
+}
+
+.app-brand {
+    padding: 0.5rem 0;
+}
+
+.app-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.app-name {
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--dark-color);
+}
+
+.app-subtitle {
+    font-size: 0.75rem;
+    color: var(--gray-color);
+}
+
+.sidebar .nav-link {
+    padding: 0.75rem 1rem;
+    margin: 0.25rem 0.75rem;
+    border-radius: var(--border-radius);
+    color: var(--dark-color);
+    font-weight: 500;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+}
+
+.sidebar .nav-link:hover {
+    background-color: var(--secondary-color);
+}
+
+.sidebar .nav-link.active {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+}
+
+.sidebar .nav-link i {
+    font-size: 1.25rem;
+    margin-right: 0.75rem;
+}
+
+.profile-section {
+    padding: 1rem;
+    margin: 1rem 0.75rem 0;
+    border-top: 1px solid var(--gray-light-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.user-profile-link {
+    display: flex;
+    align-items: center;
+    color: inherit;
+}
+
+.user-profile-link:hover {
+    color: var(--primary-color);
+}
+
+.avatar-sm {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+}
+
+.user-info {
+    margin-left: 0.75rem;
+}
+
+.username {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.user-email {
+    font-size: 0.75rem;
+    color: var(--gray-color);
+}
+
+.settings-link {
+    font-size: 1.25rem;
+    color: var(--gray-color);
+}
+
+.settings-link:hover {
+    color: var(--primary-color);
+}
+
+.logout-section {
+    padding: 0.5rem 0.75rem;
+    margin: 0 0.75rem;
+    border-top: 1px solid var(--gray-light-color);
+}
+
+.logout-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    color: var(--danger-color);
+    font-weight: 500;
+}
+
+.logout-link i {
+    margin-right: 0.75rem;
+}
+
+/* Main content */
+.main-content {
+    padding: 2rem;
+    background-color: #f0f2f5;
+    min-height: 100vh;
+}
+
+/* Right sidebar */
+.right-sidebar-container {
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+    background-color: white;
+    border-left: 1px solid var(--gray-light-color);
+}
+
+.right-sidebar {
+    height: 100%;
+}
+
+.search-container input {
+    border-radius: var(--border-radius);
+}
+
+.group-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.group-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    border-radius: var(--border-radius);
+    background-color: var(--light-color);
+    color: inherit;
+    transition: var(--transition);
+}
+
+.group-item:hover {
+    background-color: var(--secondary-color);
+}
+
+.group-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: var(--primary-color);
+    margin-right: 0.75rem;
+    box-shadow: var(--box-shadow);
+}
+
+.group-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.group-members {
+    font-size: 0.75rem;
+    color: var(--gray-color);
+}
+
+/* Posts */
+.post-create-card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.post-input {
+    border: none;
+    resize: none;
+    padding: 0.75rem 0;
+    font-size: 1rem;
+    width: 100%;
+}
+
+.post-input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.post-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--gray-light-color);
+    padding-top: 0.75rem;
+}
+
+.post-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: var(--border-radius);
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    border: none;
+}
+
+.post-btn:disabled {
+    opacity: 0.65;
+}
+
+.post-action-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--border-radius);
+}
+
+.post-action-btn:hover {
+    background-color: var(--secondary-color);
+}
+
+.post-action-btn i {
+    font-size: 1.25rem;
+}
+
+.post-card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.post-user-info {
+    margin-left: 0.75rem;
+}
+
+.post-username {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.post-date {
+    font-size: 0.75rem;
+    color: var(--gray-color);
+}
+
+.post-content {
+    margin-bottom: 0.75rem;
+}
+
+.post-image {
+    margin-bottom: 0.75rem;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.post-image img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.post-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.vote-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--gray-light-color);
+    background-color: white;
+    color: var(--gray-color);
+    transition: var(--transition);
+}
+
+.vote-btn:hover {
+    background-color: var(--light-color);
+}
+
+.vote-btn.active-upvote {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.vote-btn.active-downvote {
+    background-color: var(--danger-color);
+    color: white;
+    border-color: var(--danger-color);
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    color: var(--gray-color);
+    margin-bottom: 1rem;
+}
+
+/* Improved Group Cards */
+.group-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #eaeaea;
+}
+
+.group-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.group-card-header {
+    padding: 1.25rem 1.25rem 0.75rem;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.icon-wrapper {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background-color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+
+.icon-wrapper i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+.group-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+    flex: 1;
+}
+
+.group-card-body {
+    padding: 0 1.25rem;
+    flex: 1;
+}
+
+.group-description {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 0.75rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.5;
+}
+
+.group-card-footer {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Group detail page */
+.group-header {
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 1.5rem;
+}
+
+.group-header-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    color: var(--primary-color);
+}
+
+/* Create group modal */
+.icon-selector {
+    padding: 0.5rem 0;
+}
+
+.icon-option {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--light-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: var(--gray-color);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.icon-option:hover {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+}
+
+.icon-option.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Forms */
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(36, 110, 253, 0.25);
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 2rem;
+}
+
+/* Avatar */
+.avatar-small {
+    width: 30px;
+    height: 30px;
+    object-fit: cover;
+}
+
+/* Responsive */
+@media (max-width: 991.98px) {
+    .sidebar .nav-link span {
+        display: none;
+    }
+    
+    .sidebar .nav-link i {
+        margin-right: 0;
+        font-size: 1.5rem;
+    }
+    
+    .sidebar .nav-link {
+        justify-content: center;
+    }
+    
+    .profile-section {
+        flex-direction: column;
+    }
+    
+    .user-info {
+        display: none;
+    }
+    
+    .settings-link {
+        margin-top: 0.5rem;
+    }
+    
+    .logout-link span {
+        display: none;
+    }
+    
+    .logout-link {
+        justify-content: center;
+    }
+    
+    .logout-link i {
+        margin-right: 0;
+    }
+}
+
+/* Add Reddit-style vote buttons */
+.btn-vote {
+    background-color: transparent;
+    border: none;
+    font-weight: bold;
+    padding: 0.25rem 0.5rem;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 4px;
+}
+
+.btn-vote i {
+    font-size: 1.2rem;
+    margin-right: 0.2rem;
+}
+
+.btn-vote:hover {
+    background-color: #f3f3f3;
+}
+
+.upvote.active {
+    color: #FF4500; /* Reddit's upvote orange color */
+}
+
+.downvote.active {
+    color: #7193FF; /* Reddit's downvote blue color */
+}
+
+.upvote:hover i,
+.upvote:hover span {
+    color: #FF4500;
+}
+
+.downvote:hover i,
+.downvote:hover span {
+    color: #7193FF;
+}
+
+/* Vote count styling */
+.upvote-count, .downvote-count {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Hover transitions */
+.btn-vote i, .btn-vote span {
+    transition: color 0.15s ease-in-out;
+}
+
+/* Profile picture styles */
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+    border: 1px solid #eaeaea;
+}
+
+.avatar.me-2 {
+    flex-shrink: 0;
+}
+
+.avatar.small {
+    width: 30px;
+    height: 30px;
+}
+
+.profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+    border: 3px solid white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Enforce consistent avatar sizes */
+img.avatar, img.avatar-sm, img.avatar-small, img.profile-avatar {
+    max-width: 100%;
+    max-height: 100%;
+    display: block;
+} 

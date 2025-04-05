@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Register - MariNet{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-5 col-md-7">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <h2 class="card-title text-center mb-4">Create your Account</h2>
+                
+                {% if error %}
+                <div class="alert alert-danger mb-4">
+                    <div class="d-flex">
+                        <i class="bi bi-exclamation-circle-fill me-2"></i>
+                        <span>{{ error }}</span>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <form method="POST" action="{{ url_for('register') }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="username" 
+                                name="username" 
+                                placeholder="Choose a username"
+                                required
+                            >
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input 
+                                type="email" 
+                                class="form-control" 
+                                id="email" 
+                                name="email" 
+                                placeholder="Enter your email"
+                                required
+                            >
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input 
+                                type="password" 
+                                class="form-control" 
+                                id="password" 
+                                name="password"
+                                placeholder="Create a password"
+                                required
+                                minlength="6"
+                            >
+                        </div>
+                        <div class="form-text">Password must be at least 6 characters</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="password_confirm" class="form-label">Confirm Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                            <input 
+                                type="password" 
+                                class="form-control" 
+                                id="password_confirm" 
+                                name="password_confirm"
+                                placeholder="Confirm your password"
+                                required
+                                minlength="6"
+                            >
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">Sign up</button>
+                    </div>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <p class="mb-0">
+                        Already have an account? 
+                        <a href="{{ url_for('login') }}" class="text-decoration-none">Sign in</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const password = document.getElementById('password').value;
+        const passwordConfirm = document.getElementById('password_confirm').value;
+        
+        if (password !== passwordConfirm) {
+            e.preventDefault();
+            alert('Passwords do not match');
+        }
+    });
+</script>
+{% endblock %} 

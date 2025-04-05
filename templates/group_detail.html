@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}{{ group.name }} - MariNet{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="group-header mb-4">
+        <div class="d-flex align-items-center">
+            <div class="icon-wrapper me-3">
+                <i class="bi bi-{{ group.icon }}"></i>
+            </div>
+            <div>
+                <h1 class="mb-1">{{ group.name }}</h1>
+                <p class="text-muted mb-1">{{ group.members_count }} {% if group.members_count == 1 %}member{% else %}members{% endif %}</p>
+                <p class="mb-0">{{ group.description }}</p>
+            </div>
+        </div>
+        <div class="mt-3">
+            {% if current_user.is_authenticated %}
+                {% if is_member %}
+                    <form action="{{ url_for('leave_group', group_id=group.id) }}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-outline-danger">Leave Group</button>
+                    </form>
+                {% else %}
+                    <form action="{{ url_for('join_group', group_id=group.id) }}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-primary">Join Group</button>
+                    </form>
+                {% endif %}
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-primary">Login to Join</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Post creation form (visible only for group members) -->
+            {% if is_member %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Create a Post</h5>
+                    <form action="{{ url_for('create_group_post', group_id=group.id) }}" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <textarea class="form-control" id="content" name="content" rows="3" placeholder="What's on your mind?"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Add an image (optional)</label>
+                            <input class="form-control" type="file" id="image" name="image" accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Post</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Group posts -->
+            <h4 class="mb-3">Posts</h4>
+            {% if not posts %}
+                <div class="card mb-4">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-chat-square-text fs-1 text-muted mb-3"></i>
+                        <h5>No posts yet</h5>
+                        <p class="text-muted">Be the first to share something with this group!</p>
+                    </div>
+                </div>
+            {% else %}
+                {% for post in posts %}
+                <div class="card mb-4 post-card" id="post-{{ post.id }}">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="{{ post.user.avatar_url }}" alt="{{ post.user.username }}" class="avatar me-2">
+                            <div>
+                                <h6 class="mb-0">{{ post.user.username }}</h6>
+                                <small class="text-muted">{{ post.created_at.strftime('%b %d, %Y at %I:%M %p') }}</small>
+                            </div>
+                        </div>
+                        <p class="card-text">{{ post.content }}</p>
+                        {% if post.image_url %}
+                        <div class="post-image mb-3">
+                            <img src="{{ post.image_url }}" alt="Post image" class="img-fluid rounded">
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex align-items-center mt-3">
+                            <div class="vote-buttons" data-post-id="{{ post.id }}" data-post-type="group">
+                                <button class="btn btn-sm btn-vote upvote me-1" data-vote="upvote">
+                                    <i class="bi bi-arrow-up-circle"></i>
+                                    <span class="upvote-count">{{ post.upvotes }}</span>
+                                </button>
+                                <button class="btn btn-sm btn-vote downvote" data-vote="downvote">
+                                    <i class="bi bi-arrow-down-circle"></i>
+                                    <span class="downvote-count">{{ post.downvotes }}</span>
+                                </button>
+                            </div>
+                            <div class="ms-auto">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">About this group</h5>
+                </div>
+                <div class="card-body">
+                    <p><i class="bi bi-info-circle me-2"></i> {{ group.description }}</p>
+                    <p><i class="bi bi-people me-2"></i> {{ group.members_count }} members</p>
+                    <p><i class="bi bi-calendar-event me-2"></i> Created on {{ group.created_at.strftime('%b %d, %Y') }}</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Admins</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for admin in admins %}
+                        <li class="list-group-item px-0">
+                            <div class="d-flex align-items-center">
+                                <img src="{{ admin.avatar_url }}" alt="{{ admin.username }}" class="avatar small me-2">
+                                <a href="{{ url_for('profile', user_id=admin.id) }}" class="text-decoration-none">{{ admin.username }}</a>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Members</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for member in members %}
+                        <li class="list-group-item px-0">
+                            <div class="d-flex align-items-center">
+                                <img src="{{ member.avatar_url }}" alt="{{ member.username }}" class="avatar small me-2">
+                                <a href="{{ url_for('profile', user_id=member.id) }}" class="text-decoration-none">{{ member.username }}</a>
+                                {% if member.is_admin %}
+                                <span class="badge bg-primary ms-2">Admin</span>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user's votes
+    fetch('/api/user-votes')
+        .then(response => response.json())
+        .then(data => {
+            // Mark posts that the user has voted on
+            const voteButtons = document.querySelectorAll('.vote-buttons');
+            voteButtons.forEach(buttonGroup => {
+                const postId = buttonGroup.dataset.postId;
+                const postType = buttonGroup.dataset.postType;
+                
+                let userVote;
+                if (postType === 'group') {
+                    userVote = data.group_votes[postId];
+                } else {
+                    userVote = data.votes[postId];
+                }
+                
+                if (userVote) {
+                    const activeButton = buttonGroup.querySelector(`.${userVote}`);
+                    if (activeButton) {
+                        activeButton.classList.add('active');
+                    }
+                }
+            });
+        });
+    
+    // Add event listeners to vote buttons
+    document.querySelectorAll('.btn-vote').forEach(button => {
+        button.addEventListener('click', function() {
+            if (!{{ current_user.is_authenticated|tojson }}) {
+                window.location.href = "{{ url_for('login') }}";
+                return;
+            }
+            
+            const voteType = this.dataset.vote;
+            const buttonsContainer = this.closest('.vote-buttons');
+            const postId = buttonsContainer.dataset.postId;
+            const postType = buttonsContainer.dataset.postType;
+            
+            let url;
+            if (postType === 'group') {
+                url = `/group_vote/${postId}/${voteType}`;
+            } else {
+                url = `/vote/${postId}/${voteType}`;
+            }
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update vote counts
+                const upvoteCount = buttonsContainer.querySelector('.upvote-count');
+                const downvoteCount = buttonsContainer.querySelector('.downvote-count');
+                
+                upvoteCount.textContent = data.upvotes;
+                downvoteCount.textContent = data.downvotes;
+                
+                // Update active state
+                const upvoteButton = buttonsContainer.querySelector('.upvote');
+                const downvoteButton = buttonsContainer.querySelector('.downvote');
+                
+                upvoteButton.classList.remove('active');
+                downvoteButton.classList.remove('active');
+                
+                // If the same button was clicked, it's a toggle
+                // If different button was clicked, set the new one active
+                if (this === upvoteButton && data.upvotes > 0) {
+                    upvoteButton.classList.add('active');
+                } else if (this === downvoteButton && data.downvotes > 0) {
+                    downvoteButton.classList.add('active');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+});
+</script>
+{% endblock %} 

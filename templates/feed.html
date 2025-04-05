@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+
+{% block title %}Feed - MariNet{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row g-4">
+        <!-- Main content - Posts -->
+        <div class="col-lg-8">
+            <!-- Post creation for logged in users -->
+            {% if current_user.is_authenticated %}
+            <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <img src="{{ current_user.avatar_url }}" alt="{{ current_user.username }}" class="avatar me-2">
+                        <h5 class="card-title mb-0">Create a Post</h5>
+                    </div>
+                    <form action="{{ url_for('create_post') }}" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <textarea class="form-control border-0 bg-light rounded-3" id="content" name="content" rows="3" placeholder="What's on your mind?"></textarea>
+                        </div>
+                        <div class="image-preview-container mb-3 rounded-4 d-none">
+                            <div class="position-relative">
+                                <img id="imagePreview" src="#" alt="Preview" class="img-fluid rounded-4">
+                                <button type="button" class="btn-close position-absolute top-0 end-0 m-2 bg-white rounded-circle p-2" id="removeImage"></button>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="post-options">
+                                <label for="image" class="btn btn-light rounded-pill me-2">
+                                    <i class="bi bi-image text-success"></i> Photo
+                                </label>
+                                <input class="d-none" type="file" id="image" name="image" accept="image/*">
+                            </div>
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">
+                                <i class="bi bi-send-fill me-1"></i> Post
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Post list -->
+            {% if posts %}
+                {% for post in posts %}
+                <div class="card mb-4 post-card border-0 rounded-4 shadow-sm" id="post-{{ post.id }}">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="{{ post.user.avatar_url }}" alt="{{ post.user.username }}" class="avatar me-2">
+                            <div>
+                                <h6 class="mb-0 fw-bold">{{ post.user.username }}</h6>
+                                <small class="text-muted">{{ post.created_at.strftime('%b %d, %Y at %I:%M %p') }}</small>
+                            </div>
+                            <div class="dropdown ms-auto">
+                                <button class="btn btn-sm btn-light rounded-circle" type="button" id="dropdownMenuButton{{ post.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton{{ post.id }}">
+                                    <li><a class="dropdown-item" href="{{ url_for('profile', user_id=post.user_id) }}"><i class="bi bi-person me-2"></i>View Profile</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-bookmark me-2"></i>Save Post</a></li>
+                                    {% if current_user.is_authenticated and current_user.id == post.user_id %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash me-2"></i>Delete Post</a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                        <p class="card-text mb-3">{{ post.content }}</p>
+                        {% if post.image_url %}
+                        <div class="post-image mb-3 rounded-4 overflow-hidden">
+                            <img src="{{ post.image_url }}" alt="Post image" class="img-fluid w-100">
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex align-items-center mt-3 pt-3 border-top">
+                            <div class="vote-buttons" data-post-id="{{ post.id }}" data-post-type="regular">
+                                <button class="btn btn-sm btn-vote upvote me-1" data-vote="upvote">
+                                    <i class="bi bi-arrow-up-circle-fill"></i>
+                                    <span class="upvote-count">{{ post.upvotes }}</span>
+                                </button>
+                                <button class="btn btn-sm btn-vote downvote me-3" data-vote="downvote">
+                                    <i class="bi bi-arrow-down-circle-fill"></i>
+                                    <span class="downvote-count">{{ post.downvotes }}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="card border-0 rounded-4 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <img src="/static/empty-state.svg" alt="No posts" class="empty-state-image mb-4" width="150">
+                        <h5>No posts yet</h5>
+                        <p class="text-muted mb-4">Be the first to share something!</p>
+                        {% if current_user.is_authenticated %}
+                        <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="focus" data-bs-target="#content">
+                            <i class="bi bi-plus-lg me-1"></i> Create a Post
+                        </button>
+                        {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-primary rounded-pill px-4">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Log in to Post
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Right sidebar -->
+        <div class="col-lg-4">
+            <div class="card mb-4 border-0 rounded-4 shadow-sm sticky-top" style="top: 1rem; z-index: 100;">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-search me-2"></i>Search</h5>
+                </div>
+                <div class="card-body">
+                    <div class="input-group">
+                        <input type="text" class="form-control rounded-start-pill border-end-0" placeholder="Search...">
+                        <button class="btn btn-primary rounded-end-pill" type="button">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-people-fill me-2"></i>Join Groups</h5>
+                </div>
+                <div class="card-body">
+                    <p>Connect with peers in groups to share resources and discuss topics.</p>
+                    <a href="{{ url_for('groups') }}" class="btn btn-primary rounded-pill">
+                        <i class="bi bi-plus-lg me-1"></i> Browse Groups
+                    </a>
+                </div>
+            </div>
+            
+            <div class="card border-0 rounded-4 shadow-sm">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-hash me-2"></i>Trending Tags</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="#" class="trending-tag">#Mathematics</a>
+                        <a href="#" class="trending-tag">#Physics</a>
+                        <a href="#" class="trending-tag">#Chemistry</a>
+                        <a href="#" class="trending-tag">#Literature</a>
+                        <a href="#" class="trending-tag">#History</a>
+                        <a href="#" class="trending-tag">#ComputerScience</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .trending-tag {
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        background-color: #f8f9fa;
+        color: var(--primary-color);
+        border-radius: 20px;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .trending-tag:hover {
+        background-color: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .post-image {
+        max-height: 500px;
+        overflow: hidden;
+    }
+    
+    .post-image img {
+        transition: transform 0.3s ease;
+    }
+    
+    .post-card:hover .post-image img {
+        transform: scale(1.02);
+    }
+    
+    /* Empty state styling */
+    .empty-state-image {
+        opacity: 0.7;
+    }
+    
+    /* Improved upload button */
+    .post-options label {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .post-options label:hover {
+        background-color: #e9ecef;
+    }
+    
+    /* Image preview */
+    .image-preview-container {
+        position: relative;
+        max-height: 300px;
+        overflow: hidden;
+        margin-top: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Image preview functionality
+    const imageInput = document.getElementById('image');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewContainer = document.querySelector('.image-preview-container');
+    const removeImageBtn = document.getElementById('removeImage');
+    
+    if (imageInput) {
+        imageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    previewContainer.classList.remove('d-none');
+                }
+                
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+        
+        if (removeImageBtn) {
+            removeImageBtn.addEventListener('click', function() {
+                imageInput.value = '';
+                previewContainer.classList.add('d-none');
+            });
+        }
+    }
+
+    // Fetch user's votes
+    fetch('/api/user-votes')
+        .then(response => response.json())
+        .then(data => {
+            // Mark posts that the user has voted on
+            const voteButtons = document.querySelectorAll('.vote-buttons');
+            voteButtons.forEach(buttonGroup => {
+                const postId = buttonGroup.dataset.postId;
+                const postType = buttonGroup.dataset.postType;
+                
+                let userVote;
+                if (postType === 'group') {
+                    userVote = data.group_votes[postId];
+                } else {
+                    userVote = data.votes[postId];
+                }
+                
+                if (userVote) {
+                    const activeButton = buttonGroup.querySelector(`.${userVote}`);
+                    if (activeButton) {
+                        activeButton.classList.add('active');
+                    }
+                }
+            });
+        });
+    
+    // Add event listeners to vote buttons
+    document.querySelectorAll('.btn-vote').forEach(button => {
+        button.addEventListener('click', function() {
+            if (!{{ current_user.is_authenticated|tojson }}) {
+                window.location.href = "{{ url_for('login') }}";
+                return;
+            }
+            
+            const voteType = this.dataset.vote;
+            const buttonsContainer = this.closest('.vote-buttons');
+            const postId = buttonsContainer.dataset.postId;
+            const postType = buttonsContainer.dataset.postType;
+            
+            let url;
+            if (postType === 'group') {
+                url = `/group_vote/${postId}/${voteType}`;
+            } else {
+                url = `/vote/${postId}/${voteType}`;
+            }
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update vote counts
+                const upvoteCount = buttonsContainer.querySelector('.upvote-count');
+                const downvoteCount = buttonsContainer.querySelector('.downvote-count');
+                
+                upvoteCount.textContent = data.upvotes;
+                downvoteCount.textContent = data.downvotes;
+                
+                // Update active state
+                const upvoteButton = buttonsContainer.querySelector('.upvote');
+                const downvoteButton = buttonsContainer.querySelector('.downvote');
+                
+                upvoteButton.classList.remove('active');
+                downvoteButton.classList.remove('active');
+                
+                // If the same button was clicked, it's a toggle
+                // If different button was clicked, set the new one active
+                if (this === upvoteButton && data.upvotes > 0) {
+                    upvoteButton.classList.add('active');
+                } else if (this === downvoteButton && data.downvotes > 0) {
+                    downvoteButton.classList.add('active');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+});
+</script>
+{% endblock %} 

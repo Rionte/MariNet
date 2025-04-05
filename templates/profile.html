@@ -1,0 +1,367 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }} - MariNet{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="profile-header mb-4 p-4 bg-white rounded-4 shadow-sm">
+        <div class="row align-items-center">
+            <div class="col-md-3 text-center">
+                <div class="position-relative d-inline-block">
+                    <img src="{{ user.avatar_url }}" alt="{{ user.username }}" class="profile-avatar mb-3">
+                    {% if current_user.is_authenticated and current_user.id == user.id %}
+                    <a href="{{ url_for('settings') }}" class="edit-avatar-btn">
+                        <i class="bi bi-pencil-fill"></i>
+                    </a>
+                    {% endif %}
+                </div>
+                {% if current_user.is_authenticated and current_user.id == user.id %}
+                <a href="{{ url_for('settings') }}" class="btn btn-outline-primary btn-sm rounded-pill">
+                    <i class="bi bi-pencil-square"></i> Edit Profile
+                </a>
+                {% endif %}
+            </div>
+            <div class="col-md-9">
+                <h1 class="display-6 fw-bold mb-2">{{ user.username }}</h1>
+                <div class="d-flex align-items-center text-muted mb-3">
+                    <span class="badge bg-light text-dark me-2 px-3 py-2 rounded-pill">
+                        <i class="bi bi-calendar3 me-1"></i> Joined {{ user.created_at.strftime('%B %Y') }}
+                    </span>
+                    <span class="badge bg-light text-dark px-3 py-2 rounded-pill">
+                        <i class="bi bi-pencil-square me-1"></i> {{ posts|length }} Posts
+                    </span>
+                </div>
+                {% if user.bio %}
+                <div class="bio-container p-3 rounded-3 bg-light">
+                    <p class="mb-0">{{ user.bio }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0 fw-bold">Posts</h4>
+                {% if current_user.is_authenticated and current_user.id == user.id %}
+                <a href="{{ url_for('feed') }}" class="btn btn-primary btn-sm rounded-pill">
+                    <i class="bi bi-plus-lg"></i> Create New Post
+                </a>
+                {% endif %}
+            </div>
+            
+            {% if posts %}
+                {% for post in posts %}
+                <div class="card mb-4 post-card border-0 rounded-4 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="{{ user.avatar_url }}" alt="{{ user.username }}" class="avatar me-2">
+                            <div>
+                                <h6 class="mb-0 fw-bold">{{ user.username }}</h6>
+                                <small class="text-muted">{{ post.created_at.strftime('%b %d, %Y at %I:%M %p') }}</small>
+                            </div>
+                        </div>
+                        <p class="card-text">{{ post.content }}</p>
+                        {% if post.image_url %}
+                        <div class="post-image mb-3 rounded-4 overflow-hidden">
+                            <img src="{{ post.image_url }}" alt="Post image" class="img-fluid w-100">
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex align-items-center mt-3">
+                            <div class="vote-buttons" data-post-id="{{ post.id }}" data-post-type="regular">
+                                <button class="btn btn-sm btn-vote upvote me-1" data-vote="upvote">
+                                    <i class="bi bi-arrow-up-circle-fill"></i>
+                                    <span class="upvote-count">{{ post.upvotes }}</span>
+                                </button>
+                                <button class="btn btn-sm btn-vote downvote" data-vote="downvote">
+                                    <i class="bi bi-arrow-down-circle-fill"></i>
+                                    <span class="downvote-count">{{ post.downvotes }}</span>
+                                </button>
+                            </div>
+                            <div class="ms-auto">
+                                <button class="btn btn-sm btn-outline-primary rounded-pill">
+                                    <i class="bi bi-chat-text"></i> Comments
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="card border-0 rounded-4 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-chat-square-text fs-1 text-muted mb-3"></i>
+                        <h5>No posts yet</h5>
+                        <p class="text-muted">This user hasn't made any posts yet.</p>
+                        {% if current_user.is_authenticated and current_user.id == user.id %}
+                        <a href="{{ url_for('feed') }}" class="btn btn-primary rounded-pill">
+                            <i class="bi bi-plus-lg"></i> Create Your First Post
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4 border-0 rounded-4 shadow-sm">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="mb-0 fw-bold">About</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-bg bg-primary text-white me-3">
+                            <i class="bi bi-calendar"></i>
+                        </div>
+                        <div>
+                            <p class="mb-0"><strong>Joined</strong></p>
+                            <p class="mb-0 text-muted">{{ user.created_at.strftime('%B %d, %Y') }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-center">
+                        <div class="icon-bg bg-info text-white me-3">
+                            <i class="bi bi-info-circle"></i>
+                        </div>
+                        <div>
+                            <p class="mb-0"><strong>Bio</strong></p>
+                            {% if user.bio %}
+                            <p class="mb-0 text-muted">{{ user.bio }}</p>
+                            {% else %}
+                            <p class="mb-0 text-muted">No bio available</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {% if current_user.is_authenticated and current_user.id == user.id %}
+            <div class="card border-0 rounded-4 shadow-sm">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h5 class="mb-0 fw-bold">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{{ url_for('settings') }}" class="quick-action-btn d-flex align-items-center p-2 mb-2 rounded-3">
+                        <div class="icon-bg bg-primary text-white me-3">
+                            <i class="bi bi-gear"></i>
+                        </div>
+                        <span>Account Settings</span>
+                    </a>
+                    <a href="{{ url_for('groups') }}" class="quick-action-btn d-flex align-items-center p-2 rounded-3">
+                        <div class="icon-bg bg-success text-white me-3">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <span>Manage Groups</span>
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .profile-header {
+        transition: all 0.3s ease;
+    }
+    
+    .profile-avatar {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        object-fit: cover;
+        object-position: center;
+        border: 4px solid white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .edit-avatar-btn {
+        position: absolute;
+        right: 30px;
+        bottom: 20px;
+        width: 36px;
+        height: 36px;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s ease;
+    }
+    
+    .edit-avatar-btn:hover {
+        transform: scale(1.1);
+        background-color: #0062cc;
+        color: white;
+    }
+    
+    .bio-container {
+        border-left: 3px solid var(--primary-color);
+    }
+    
+    .post-image {
+        max-height: 400px;
+        overflow: hidden;
+    }
+    
+    .post-image img {
+        transition: transform 0.3s ease;
+    }
+    
+    .post-card:hover .post-image img {
+        transform: scale(1.02);
+    }
+    
+    .icon-bg {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .quick-action-btn {
+        text-decoration: none;
+        color: #333;
+        transition: all 0.2s ease;
+    }
+    
+    .quick-action-btn:hover {
+        background-color: #f8f9fa;
+        transform: translateY(-2px);
+    }
+    
+    /* Improved Reddit-style buttons */
+    .btn-vote {
+        padding: 0.25rem 0.5rem;
+        border: none;
+        background: transparent;
+        border-radius: 4px;
+        color: #757575;
+        transition: all 0.15s ease;
+        font-weight: 500;
+    }
+    
+    .btn-vote:hover {
+        background-color: #f0f0f0;
+    }
+    
+    .btn-vote i {
+        font-size: 1.2rem;
+        vertical-align: middle;
+    }
+    
+    .upvote.active {
+        color: var(--upvote-color);
+    }
+    
+    .downvote.active {
+        color: var(--downvote-color);
+    }
+    
+    .upvote:hover {
+        color: var(--upvote-color);
+    }
+    
+    .downvote:hover {
+        color: var(--downvote-color);
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch user's votes
+    fetch('/api/user-votes')
+        .then(response => response.json())
+        .then(data => {
+            // Mark posts that the user has voted on
+            const voteButtons = document.querySelectorAll('.vote-buttons');
+            voteButtons.forEach(buttonGroup => {
+                const postId = buttonGroup.dataset.postId;
+                const postType = buttonGroup.dataset.postType;
+                
+                let userVote;
+                if (postType === 'group') {
+                    userVote = data.group_votes[postId];
+                } else {
+                    userVote = data.votes[postId];
+                }
+                
+                if (userVote) {
+                    const activeButton = buttonGroup.querySelector(`.${userVote}`);
+                    if (activeButton) {
+                        activeButton.classList.add('active');
+                    }
+                }
+            });
+        });
+    
+    // Add event listeners to vote buttons
+    document.querySelectorAll('.btn-vote').forEach(button => {
+        button.addEventListener('click', function() {
+            if (!{{ current_user.is_authenticated|tojson }}) {
+                window.location.href = "{{ url_for('login') }}";
+                return;
+            }
+            
+            const voteType = this.dataset.vote;
+            const buttonsContainer = this.closest('.vote-buttons');
+            const postId = buttonsContainer.dataset.postId;
+            const postType = buttonsContainer.dataset.postType;
+            
+            let url;
+            if (postType === 'group') {
+                url = `/group_vote/${postId}/${voteType}`;
+            } else {
+                url = `/vote/${postId}/${voteType}`;
+            }
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update vote counts
+                const upvoteCount = buttonsContainer.querySelector('.upvote-count');
+                const downvoteCount = buttonsContainer.querySelector('.downvote-count');
+                
+                upvoteCount.textContent = data.upvotes;
+                downvoteCount.textContent = data.downvotes;
+                
+                // Update active state
+                const upvoteButton = buttonsContainer.querySelector('.upvote');
+                const downvoteButton = buttonsContainer.querySelector('.downvote');
+                
+                upvoteButton.classList.remove('active');
+                downvoteButton.classList.remove('active');
+                
+                // If the same button was clicked, it's a toggle
+                // If different button was clicked, set the new one active
+                if (this === upvoteButton && data.upvotes > 0) {
+                    upvoteButton.classList.add('active');
+                } else if (this === downvoteButton && data.downvotes > 0) {
+                    downvoteButton.classList.add('active');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Login - MariNet{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-5 col-md-7">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <h2 class="card-title text-center mb-4">Sign in to MariNet</h2>
+                
+                <div class="alert alert-primary mb-4">
+                    <p class="mb-1"><strong>Development Mode:</strong> All data is stored locally in a SQLite database.</p>
+                    <p class="mb-0">Try the default account: email: <strong>admin@marinet.edu</strong>, password: <strong>admin123</strong></p>
+                </div>
+                
+                {% if error %}
+                <div class="alert alert-danger mb-4">
+                    <div class="d-flex">
+                        <i class="bi bi-exclamation-circle-fill me-2"></i>
+                        <span>{{ error }}</span>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input 
+                                type="email" 
+                                class="form-control" 
+                                id="email" 
+                                name="email" 
+                                placeholder="Enter your email"
+                                required
+                            >
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input 
+                                type="password" 
+                                class="form-control" 
+                                id="password" 
+                                name="password"
+                                placeholder="Enter your password"
+                                required
+                            >
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">Sign in</button>
+                    </div>
+                </form>
+                
+                <div class="text-center mt-4">
+                    <p class="mb-0">
+                        Don't have an account? 
+                        <a href="{{ url_for('register') }}" class="text-decoration-none">Sign up</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
