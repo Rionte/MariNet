@@ -591,15 +591,15 @@ def leave_group(group_id):
 def create_group_post(group_id):
     group = Group.query.get_or_404(group_id)
     
+    content = request.form.get('content')
+    
     if not content or content.strip() == '':
         flash('Group post content cannot be empty.', 'danger')
-        return redirect(url_for('group', group_id=group_id))
+        return redirect(url_for('group_detail', group_id=group_id))
     
     if not group.is_member(current_user):
         flash('You must be a member of the group to post', 'error')
         return redirect(url_for('group_detail', group_id=group_id))
-    
-    content = request.form.get('content')
     
     if not content and 'image' not in request.files:
         flash('Post cannot be empty', 'error')
