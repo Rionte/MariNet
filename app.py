@@ -258,12 +258,13 @@ with app.app_context():
         
         # Get the admin user ID
         admin = User.query.filter_by(email='admin@marinet.edu').first()
-        if not admin:
-            admin = User(
-                username='admin',
-                email='admin@marinet.edu',
-                password=generate_password_hash('admin123'),
-                avatar_url='/static/default_admin_avatar.jpg'
+        
+        for group_data in groups:
+            group = Group(
+                name=group_data['name'],
+                description=group_data['description'],
+                icon=group_data['icon'],
+                created_by=admin.id
             )
             db.session.add(group)
         
