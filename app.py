@@ -63,6 +63,28 @@ AI_RESPONSES = {
         "The historical evidence suggests that this occurred due to..."
     ]
 }
+
+@app.route('/group/<group_id>')
+@login_required
+def group(group_id):
+    group = Group.query.get_or_404(group_id)
+    return render_template('group.html', group=group)
+
+@app.context_processor
+def inject_popular_groups():
+    def get_popular_groups(limit=3):
+        # Query all groups with their member counts
+        groups = Group.query.all()
+        # Sort groups by their member count (descending)
+        groups_sorted = sorted(
+            groups,
+            key=lambda g: g.members.count(),  # This properly counts the members
+            reverse=True
+        )
+        # Return the top 'limit' groups
+        return groups_sorted[:limit]
+    return dict(get_popular_groups=get_popular_groups)
+
 def get_est_time():
     # Get current UTC time
     utc_now = datetime.utcnow()
