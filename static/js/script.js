@@ -145,3 +145,38 @@ function previewImage(inputId, imgId) {
         }
     });
 } 
+// Add this script to your main JavaScript file or in a script tag at the bottom of your HTML
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Check for saved theme preference or use device preference
+    const savedTheme = localStorage.getItem('theme') || 
+                      (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    
+    // Apply the theme
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+    
+    // Add event listener to theme toggle button
+    document.getElementById('theme-toggle').addEventListener('click', function() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        
+        // Save theme preference
+        localStorage.setItem('theme', newTheme);
+        
+        // Apply new theme
+        document.documentElement.setAttribute('data-theme', newTheme);
+        updateThemeIcon(newTheme);
+    });
+    
+    function updateThemeIcon(theme) {
+        const icon = document.getElementById('theme-toggle-icon');
+        if (theme === 'dark') {
+            icon.classList.remove('bi-moon');
+            icon.classList.add('bi-sun');
+        } else {
+            icon.classList.remove('bi-sun');
+            icon.classList.add('bi-moon');
+        }
+    }
+});
