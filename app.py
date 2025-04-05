@@ -25,7 +25,6 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-# IGNORE THIS SHIT NIGGA
 AI_RESPONSES = {
     "default": [
         "That's an interesting question. Let me help you understand this better.",
@@ -63,6 +62,30 @@ AI_RESPONSES = {
         "The historical evidence suggests that this occurred due to..."
     ]
 }
+
+@app.route('/group/<group_id>')
+@login_required
+def group(group_id):
+    group = Group.query.get_or_404(group_id)
+    return render_template('group.html', group=group)
+@app.context_processor
+def inject_popular_groups():
+    def get_popular_groups(limit=3):
+        # Query all groups with their member counts
+        groups = Group.query.all()
+        
+        # Sort groups by their member count (descending)
+        groups_sorted = sorted(
+            groups,
+            key=lambda g: g.members.count(),  # This properly counts the members
+            reverse=True
+        )
+        
+        # Return the top 'limit' groups
+        return groups_sorted[:limit]
+    
+    return dict(get_popular_groups=get_popular_groups)
+
 def get_est_time():
     # Get current UTC time
     utc_now = datetime.utcnow()
@@ -241,9 +264,9 @@ if __name__ == '__main__':
             # Create sample groups
             groups = [
                 {
-                    'name': 'Math Club',
-                    'description': 'A group for math enthusiasts to share problems and solutions.',
-                    'icon': 'calculator'
+                    'name': 'K-Pop Club',
+                    'description': 'For fans of K-Pop music and culture.',
+                    'icon': 'music-note'
                 },
                 {
                     'name': 'Science Club',
@@ -251,11 +274,12 @@ if __name__ == '__main__':
                     'icon': 'lightbulb'
                 },
                 {
-                    'name': 'Literature Society',
-                    'description': 'For those who love reading and discussing books.',
-                    'icon': 'book'
+                    'name': 'Environmental Awareness',
+                    'description': 'For those passionate about the environment.',
+                    'icon': 'tree'
                 }
             ]
+            
             
             # Get the admin user ID
             admin = User.query.filter_by(email='admin@marinet.edu').first()

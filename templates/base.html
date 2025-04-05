@@ -110,35 +110,19 @@
                         </div>
                         
                         <div class="group-list">
-                            <a href="#" class="group-item">
-                                <div class="group-icon">
-                                    <i class="bi bi-calculator"></i>
-                                </div>
-                                <div class="group-info">
-                                    <div class="group-name">Math Club</div>
-                                    <div class="group-members">1 members</div>
-                                </div>
-                            </a>
-                            
-                            <a href="#" class="group-item">
-                                <div class="group-icon">
-                                    <i class="bi bi-lightbulb"></i>
-                                </div>
-                                <div class="group-info">
-                                    <div class="group-name">Science Club</div>
-                                    <div class="group-members">1 members</div>
-                                </div>
-                            </a>
-                            
-                            <a href="#" class="group-item">
-                                <div class="group-icon">
-                                    <i class="bi bi-book"></i>
-                                </div>
-                                <div class="group-info">
-                                    <div class="group-name">Literature Society</div>
-                                    <div class="group-members">1 members</div>
-                                </div>
-                            </a>
+                            {% for group in get_popular_groups() %}
+                                <a href="{{ url_for('groups', group_id=group.id) }}" class="group-item">
+                                    <div class="group-icon">
+                                        <i class="bi bi-{{ group.icon }}"></i>
+                                    </div>
+                                    <div class="group-info">
+                                        <div class="group-name">{{ group.name }}</div>
+                                        <div class="group-members">{{ group.members_count }} member{{ 's' if group.members_count != 1 else '' }}</div>
+                                    </div>
+                                </a>
+                            {% else %}
+                                <div class="text-muted small">No groups available</div>
+                            {% endfor %}
                         </div>
                     </div>
                     
