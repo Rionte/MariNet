@@ -48,6 +48,11 @@
                                href="{{ url_for('notifications') }}">
                                 <i class="bi bi-bell"></i>
                                 <span>Notifications</span>
+                                {% if current_user.notifications.filter_by(is_read=False).count() > 0 %}
+                                    <span class="badge bg-danger notification-badge">
+                                        {{ current_user.notifications.filter_by(is_read=False).count() }}
+                                    </span>
+                                {% endif %}
                             </a>
                         </li>
                         <li class="nav-item">

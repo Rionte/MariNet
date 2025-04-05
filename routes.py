@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import uuid
-from app import app, db, User, Post, Vote, Group, GroupPost, AiConversation, AiMessage, generate_ai_response, group_members, Tag
+from app import app, db, User, Post, Vote, Group, GroupPost, AiConversation, AiMessage, generate_ai_response, group_members, Tag, Notification
 import re
 from collections import Counter
 
@@ -26,6 +26,48 @@ def save_image(file):
         # Return the path relative to static folder
         return '/static/uploads/' + filename
     return None
+
+def process_mentions(content, post=None, group_post=None):
+    if not content:
+        return
+    
+    print(f"Processing mentions in: {content}")
+    
+    # Find all @username mentions using REGEX (yes hassan, you heard it right, REGEX twin)
+    mentions = re.findall(r'@(\w+)', content)
+    print(f"Found mentions: {mentions}")
+    
+    for username in mentions:
+        # Find mentioned user
+        mentioned_user = User.query.filter_by(username=username).first()
+        
+        # If user exists and is not the current user
+        if mentioned_user and mentioned_user.id != current_user.id:
+            print(f"Creating notification for user: {mentioned_user.username} (ID: {mentioned_user.id})")
+            # Create notification text based on post type
+            post_type = "post" if post else "group post"
+            notification_text = f"{current_user.username} mentioned you in a {post_type}"
+            
+            # Create new notification
+            new_notification = Notification(
+                user_id=mentioned_user.id,
+                sender_id=current_user.id,
+                content=notification_text,
+                post_id=post.id if post else None,
+                group_post_id=group_post.id if group_post else None,
+                notification_type='mention'
+            )
+            
+            db.session.add(new_notification)
+        elif not mentioned_user:
+            print(f"User not found: @{username}")
+        elif mentioned_user.id == current_user.id:
+            print(f"Skipping self-mention: @{username}")
+    
+    # add the notifications to the database 
+    if mentions:
+        db.session.commit()
+        print("Committed notifications to database")
 
 # Auth routes
 @app.route('/login', methods=['GET', 'POST'])
@@ -116,7 +158,7 @@ def delete_post(post_id):
     flash('Post deleted successfully', 'success')
     return redirect(url_for('feed'))
 
-# Main routes
+
 @app.route('/')
 def index():
     if current_user.is_authenticated:
@@ -182,6 +224,8 @@ def create_post():
             db.session.add(Tag(name=tag))
     db.session.commit()
     
+    process_mentions(content, post=new_post)
+    
     flash('Post created successfully', 'success')
     return redirect(url_for('feed'))
 
@@ -231,6 +275,8 @@ def vote(post_id, vote_type):
             post.downvotes += 1
     
     db.session.commit()
+    
+    process_mentions(post.content, post=post)
     
     return jsonify({
         'upvotes': post.upvotes,
@@ -288,6 +334,8 @@ def group_vote(post_id, vote_type):
             post.downvotes += 1
     
     db.session.commit()
+    
+    process_mentions(post.content, group_post=post)
     
     return jsonify({
         'upvotes': post.upvotes,
@@ -534,6 +582,8 @@ def create_group_post(group_id):
     db.session.add(new_post)
     db.session.commit()
     
+    process_mentions(content, group_post=new_post)
+    
     flash('Post created successfully', 'success')
     return redirect(url_for('group_detail', group_id=group_id))
 
@@ -605,6 +655,8 @@ def ai_tutor_send():
         db.session.add(ai_message)
         db.session.commit()
         
+        process_mentions(message_content)
+        
         return jsonify({
             'success': True,
             'user_message': {
@@ -629,6 +681,8 @@ def ai_tutor_send():
         )
         db.session.add(ai_message)
         db.session.commit()
+        
+        process_mentions(message_content)
         
         return jsonify({
             'success': True,
@@ -667,7 +721,15 @@ def clear_ai_conversation():
 @app.route('/notifications')
 @login_required
 def notifications():
-    return render_template('notifications.html')
+    # Get user's notifications ordered by most recent first
+    user_notifications = Notification.query.filter_by(user_id=current_user.id).order_by(Notification.created_at.desc()).all()
+    
+    # Mark all notifications as read
+    for notification in user_notifications:
+        notification.is_read = True
+    db.session.commit()
+    
+    return render_template('notifications.html', notifications=user_notifications)
 
 @app.route('/api/user-votes')
 @login_required
@@ -706,6 +768,13 @@ def search_users():
 @app.route('/terms-offline.html')
 def terms_offline():
     return render_template('terms-offline.html')
+
+@app.route('/api/unread-notifications-count')
+@login_required
+def unread_notifications_count():
+    count = Notification.query.filter_by(user_id=current_user.id, is_read=False).count()
+    print(f"Unread notifications for user {current_user.username} (ID: {current_user.id}): {count}")
+    return jsonify({'count': count})
 
 
 # Error handlers

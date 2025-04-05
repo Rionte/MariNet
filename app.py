@@ -193,15 +193,32 @@ class AiMessage(db.Model):
     is_user = db.Column(db.Boolean, default=True)  # True for user message, False for AI response
     created_at = db.Column(db.DateTime, default=get_est_time)
 
+class Notification(db.Model):
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
+    sender_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    post_id = db.Column(db.String(36), db.ForeignKey('post.id'), nullable=True)
+    group_post_id = db.Column(db.String(36), db.ForeignKey('group_post.id'), nullable=True)
+    notification_type = db.Column(db.String(20), nullable=False)  # 'mention', could add more types later
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=get_est_time)
+    
+    # Relationships
+    user = db.relationship('User', foreign_keys=[user_id], backref=db.backref('notifications', lazy='dynamic'))
+    sender = db.relationship('User', foreign_keys=[sender_id])
+    post = db.relationship('Post', backref=db.backref('notifications', lazy=True), foreign_keys=[post_id])
+    group_post = db.relationship('GroupPost', backref=db.backref('notifications', lazy=True), foreign_keys=[group_post_id])
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(user_id)
 
-# Function to generate AI tutor responses using Gemini API
+# GEMINI API STUFF
 def generate_ai_response(user_message, conversation_history=None):
     # Use Gemini API to generate a response
     api_key = app.config['GEMINI_API_KEY']
-    api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
+    api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}" # to lazy to use the library :(
     
     # Prepare the request payload
     parts = [{"text": user_message}]
@@ -226,7 +243,7 @@ def generate_ai_response(user_message, conversation_history=None):
         # Check if request was successful
         if response.status_code == 200:
             response_data = response.json()
-            print("Gemini API response:", response_data)  # Debug log
+            print("Gemini API response:", response_data)  # Debug
             
             # Extract the response text from the Gemini API response
             ai_response = response_data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
@@ -237,18 +254,19 @@ def generate_ai_response(user_message, conversation_history=None):
             
             return ai_response
         else:
-            # Log the error for debugging
+            # Log the error for MORE debugging
             print(f"Gemini API error: {response.status_code} - {response.text}")
             return "I'm having trouble connecting to my knowledge base right now. Please try again in a moment."
     
     except Exception as e:
-        # Log the exception for debugging
+        # Log exception for MOREEEE debugging
         print(f"Error using Gemini API: {str(e)}")
         return "Sorry, I encountered an error while processing your request. Please try again later."
 
 # Import routes after models to avoid circular imports
 from routes import *
 
+# ADMIN CREDS FOR TESTING
 with app.app_context():
     db.create_all()
     # Create admin user if it doesn't exist
@@ -263,7 +281,7 @@ with app.app_context():
         db.session.add(admin)
         db.session.commit()  # Commit to get the admin ID
         
-        # Create sample groups
+        # Sample groups data
         groups = [
             {
                 'name': 'K-Pop Club',

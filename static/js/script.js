@@ -18,6 +18,47 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000); // Auto-dismiss after 5 seconds
     });
     
+    // Check for unread notifications periodically
+    function checkUnreadNotifications() {
+        const notificationsLink = document.querySelector('a[href*="notifications"]');
+        if (!notificationsLink) {
+            console.error('Notifications link not found in the DOM');
+            return;
+        }
+        
+        console.log('Checking for unread notifications...');
+        fetch('/api/unread-notifications-count')
+            .then(response => response.json())
+            .then(data => {
+                const count = data.count;
+                console.log('Unread notifications:', count);
+                const existingBadge = notificationsLink.querySelector('.notification-badge');
+                
+                if (count > 0) {
+                    if (existingBadge) {
+                        console.log('Updating existing badge:', count);
+                        existingBadge.textContent = count;
+                    } else {
+                        console.log('Creating new badge:', count);
+                        const badge = document.createElement('span');
+                        badge.className = 'badge bg-danger notification-badge';
+                        badge.textContent = count;
+                        notificationsLink.appendChild(badge);
+                    }
+                } else if (existingBadge) {
+                    console.log('Removing badge - no unread notifications');
+                    existingBadge.remove();
+                }
+            })
+            .catch(error => console.error('Error fetching notification count:', error));
+    }
+    
+    // Check notifications initially and then every 30 seconds
+    if (document.querySelector('a[href*="notifications"]')) {
+        checkUnreadNotifications();
+        setInterval(checkUnreadNotifications, 30000);
+    }
+    
     // Get current vote status and apply active classes to vote buttons
     function checkVoteStatus() {
         const voteBtns = document.querySelectorAll('.vote-btn');

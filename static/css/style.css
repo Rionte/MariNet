@@ -717,3 +717,11 @@ img.avatar, img.avatar-sm, img.avatar-small, img.profile-avatar {
     border-top-left-radius: 1rem;  /* or same value as .rounded-4 */
     border-top-right-radius: 1rem;
   }
+
+.notification-badge {
+    position: absolute;
+    right: 8px;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.45rem;
+    border-radius: 50%;
+}
