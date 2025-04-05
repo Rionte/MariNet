@@ -92,6 +92,27 @@ def logout():
     flash('You have been logged out', 'info')
     return redirect(url_for('login'))
 
+# Add delete post route
+@app.route('/delete_post/<post_id>', methods=['POST'])
+@login_required
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    
+    # Check if user is the owner of the post
+    if post.user_id != current_user.id:
+        flash('You can only delete your own posts', 'error')
+        return redirect(url_for('feed'))
+    
+    # Delete votes associated with the post
+    Vote.query.filter_by(post_id=post_id).delete()
+    
+    # Delete the post
+    db.session.delete(post)
+    db.session.commit()
+    
+    flash('Post deleted successfully', 'success')
+    return redirect(url_for('feed'))
+
 # Main routes
 @app.route('/')
 def index():
@@ -607,6 +628,25 @@ def ai_tutor_send():
             'error': str(e)
         })
 
+@app.route('/ai-tutor/clear', methods=['POST'])
+@login_required
+def clear_ai_conversation():
+    # Create a new conversation for the user
+    new_conversation = AiConversation(user_id=current_user.id)
+    db.session.add(new_conversation)
+    db.session.commit()
+    
+    # Add initial welcome message
+    welcome_message = AiMessage(
+        conversation_id=new_conversation.id,
+        content="Hello! I'm your AI Tutor. How can I help you today?\n\nYou can ask me questions about Mathematics, Science, English, Literature, History, and many other subjects!",
+        is_user=False
+    )
+    db.session.add(welcome_message)
+    db.session.commit()
+    
+    return jsonify({'success': True, 'conversation_id': new_conversation.id})
+
 @app.route('/notifications')
 @login_required
 def notifications():
@@ -626,6 +666,25 @@ def user_votes():
         'votes': votes_dict,
         'group_votes': group_votes_dict
     })
+
+@app.route('/api/search-users')
+def search_users():
+    query = request.args.get('q', '')
+    if not query or len(query) < 2:
+        return jsonify([])
+    
+    # Search for users by username or email
+    users = User.query.filter(
+        (User.username.ilike(f'%{query}%') | User.email.ilike(f'%{query}%'))
+    ).limit(10).all()
+    
+    results = [{
+        'id': user.id,
+        'username': user.username,
+        'avatar_url': user.avatar_url
+    } for user in users]
+    
+    return jsonify(results)
 
 # Error handlers
 @app.errorhandler(404)
