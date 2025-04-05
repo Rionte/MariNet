@@ -7,6 +7,7 @@ from datetime import datetime
 import uuid
 from app import app, db, User, Post, Vote, Group, GroupPost, AiConversation, AiMessage, generate_ai_response, group_members
 
+
 # Helper functions
 def allowed_file(filename):
     return '.' in filename and \
@@ -73,7 +74,7 @@ def register():
             username=username,
             email=email,
             password=generate_password_hash(password),
-            avatar_url='/static/default_avatar.png'
+            avatar_url='/static/default_avatar.jpg'
         )
         
         db.session.add(new_user)
@@ -124,6 +125,18 @@ def index():
 def feed():
     posts = Post.query.order_by(Post.created_at.desc()).all()
     return render_template('feed.html', posts=posts)
+
+@app.route('/terms')
+def terms():
+    return render_template('terms.html')
+
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
+@app.route('/contact')
+def contact():
+    return render_template('contact.html')
 
 @app.route('/create_post', methods=['POST'])
 @login_required

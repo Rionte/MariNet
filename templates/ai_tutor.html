@@ -6,90 +6,6 @@
 {{ super() }}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/ai_tutor.css') }}?v=1.0.3">
-<!-- Fallback styles in case external CSS fails to load -->
-<style>
-.tutor-wrapper {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-    background-color: #f9fafb;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-.chat-container {
-    background-color: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 1.5rem;
-    height: 450px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-    box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1);
-}
-.message-wrapper {
-    display: flex;
-    gap: 1rem;
-    max-width: 100%;
-}
-.message-icon {
-    width: 2rem;
-    height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    flex-shrink: 0;
-    font-size: 1rem;
-}
-.ai-message .message-icon {
-    background-color: #4f46e5;
-    color: white;
-}
-.user-message .message-icon {
-    background-color: #e5e7eb;
-    color: #111827;
-}
-.input-container {
-    background-color: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 1rem;
-}
-#messageForm {
-    display: flex;
-    gap: 0.75rem;
-}
-.message-input {
-    flex: 1;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-    outline: none;
-}
-.send-button {
-    background-color: #4f46e5;
-    color: white;
-    border: none;
-    border-radius: 0.5rem;
-    width: 2.5rem;
-    height: 2.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
-.subjects-container {
-    background-color: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 1.5rem;
-}
-</style>
 {% endblock %}
 
 {% block content %}
@@ -113,11 +29,19 @@
         {% for message in messages %}
             <div class="message-wrapper {% if message.is_user %}user-message{% else %}ai-message{% endif %}">
                 <div class="message-icon">
-                    <i class="bi {% if message.is_user %}bi-person-fill{% else %}bi-robot{% endif %}"></i>
+                    {% if message.is_user %}
+                        <img src="/static/default_avatar.jpg" alt="test3" class="avatar-sm rounded-circle">
+                    {% else %}
+                        <i class="bi bi-robot"></i>
+                    {% endif %}
                 </div>
                 <div class="message-body">
                     <div class="message-content markdown-content">
-                        {{ message.content|nl2br }}
+                        {% if message.is_user %}
+                            {{ message.content|nl2br }}
+                        {% else %}
+                            {{ message.content|trim|nl2br }}
+                        {% endif %}
                     </div>
                     <div class="message-time">
                         {{ message.created_at.strftime('%I:%M %p') }}
@@ -204,10 +128,22 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to safely render markdown content
     function renderMarkdown(content) {
+        // Normalize whitespace before converting
+        const normalizedContent = content.trim();
         // Convert markdown to HTML
-        const rawHtml = marked.parse(content);
+        const rawHtml = marked.parse(normalizedContent);
         // Sanitize HTML to prevent XSS attacks
         return DOMPurify.sanitize(rawHtml);
+    }
+    
+    // Fix initial messages that might have scrolling issues
+    function fixInitialMessages() {
+        document.querySelectorAll('.ai-message .markdown-content').forEach(el => {
+            // Store the original content
+            const originalContent = el.innerText.trim();
+            // Apply markdown rendering
+            el.innerHTML = renderMarkdown(originalContent);
+        });
     }
     
     // Function to add new messages to the chat
@@ -219,9 +155,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const iconDiv = document.createElement('div');
         iconDiv.className = 'message-icon';
         
-        const icon = document.createElement('i');
-        icon.className = `bi ${isUser ? 'bi-person-fill' : 'bi-robot'}`;
-        iconDiv.appendChild(icon);
+        if (isUser) {
+            const img = document.createElement('img');
+            img.className = 'avatar-sm rounded-circle';
+            img.src = "/static/default_avatar.jpg";
+            iconDiv.appendChild(img);
+        } else {
+            const icon = document.createElement('i');
+            icon.className = `bi bi-robot`;
+            iconDiv.appendChild(icon);
+        }
         
         // Create message body
         const bodyDiv = document.createElement('div');
@@ -260,6 +203,9 @@ document.addEventListener('DOMContentLoaded', function() {
             Prism.highlightAllUnder(contentDiv);
         }
     }
+    
+    // Run fix for initial messages
+    fixInitialMessages();
     
     // Function to send message to server
     function sendMessage(message) {
@@ -369,11 +315,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Scroll to bottom of chat on load
     chatContainer.scrollTop = chatContainer.scrollHeight;
-    
-    // Initialize any existing markdown content in the chat
-    document.querySelectorAll('.ai-message .markdown-content').forEach(el => {
-        el.innerHTML = renderMarkdown(el.innerText);
-    });
 });
 </script>
 {% endblock %}
