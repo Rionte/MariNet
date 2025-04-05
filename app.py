@@ -8,6 +8,7 @@ from datetime import datetime
 import uuid
 import requests
 import json
+import pytz
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key'
@@ -23,6 +24,8 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+
 
 AI_RESPONSES = {
     "default": [
@@ -62,13 +65,23 @@ AI_RESPONSES = {
     ]
 }
 
+def get_est_time():
+    # Get current UTC time
+    utc_now = datetime.utcnow()
+    # Create Eastern timezone object
+    eastern = pytz.timezone('US/Eastern')
+    # Convert UTC time to Eastern time
+    est_now = utc_now.replace(tzinfo=pytz.utc).astimezone(eastern)
+    # Return the converted time
+    return est_now
+
 # Association table for group memberships
 group_members = db.Table('group_members',
     db.Column('user_id', db.String(36), db.ForeignKey('user.id'), primary_key=True),
     db.Column('group_id', db.String(36), db.ForeignKey('group.id'), primary_key=True),
     db.Column('is_admin', db.Boolean, default=False),
-    db.Column('joined_at', db.DateTime, default=datetime.utcnow)
-)
+    db.Column('joined_at', db.DateTime, default=get_est_time))
+
 
 # Models
 class User(db.Model, UserMixin):
@@ -78,7 +91,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(200), nullable=False)
     avatar_url = db.Column(db.String(500), nullable=True, default='/static/default_avatar.png')
     bio = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_est_time)
     
     posts = db.relationship('Post', backref='user', lazy=True)
     group_posts = db.relationship('GroupPost', backref='user', lazy=True)
@@ -91,7 +104,7 @@ class Post(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     content = db.Column(db.Text, nullable=False)
     image_url = db.Column(db.String(500), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_est_time)
     user_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
     upvotes = db.Column(db.Integer, default=0)
     downvotes = db.Column(db.Integer, default=0)
@@ -101,7 +114,7 @@ class Group(db.Model):
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
     icon = db.Column(db.String(50), nullable=False, default='people')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_est_time)
     created_by = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
     
     posts = db.relationship('GroupPost', backref='group', lazy=True)
@@ -124,7 +137,7 @@ class GroupPost(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     content = db.Column(db.Text, nullable=False)
     image_url = db.Column(db.String(500), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_est_time)
     user_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
     group_id = db.Column(db.String(36), db.ForeignKey('group.id'), nullable=False)
     upvotes = db.Column(db.Integer, default=0)
@@ -136,7 +149,7 @@ class Vote(db.Model):
     group_post_id = db.Column(db.String(36), db.ForeignKey('group_post.id'), nullable=True)
     user_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
     vote_type = db.Column(db.String(10), nullable=False)  # 'upvote' or 'downvote'
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_est_time)
     
     post = db.relationship('Post', backref=db.backref('votes', lazy=True), foreign_keys=[post_id])
     group_post = db.relationship('GroupPost', backref=db.backref('votes', lazy=True), foreign_keys=[group_post_id])
@@ -145,7 +158,7 @@ class Vote(db.Model):
 class AiConversation(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_est_time)
     
     messages = db.relationship('AiMessage', backref='conversation', lazy=True, order_by="AiMessage.created_at")
     user = db.relationship('User', backref=db.backref('ai_conversations', lazy=True))
@@ -155,7 +168,7 @@ class AiMessage(db.Model):
     conversation_id = db.Column(db.String(36), db.ForeignKey('ai_conversation.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
     is_user = db.Column(db.Boolean, default=True)  # True for user message, False for AI response
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=get_est_time)
 
 @login_manager.user_loader
 def load_user(user_id):
