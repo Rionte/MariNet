@@ -73,7 +73,7 @@ def register():
             username=username,
             email=email,
             password=generate_password_hash(password),
-            avatar_url='/static/default_avatar.png'
+            avatar_url='/static/default_avatar.jpg'
         )
         
         db.session.add(new_user)
