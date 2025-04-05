@@ -713,3 +713,7 @@ img.avatar, img.avatar-sm, img.avatar-small, img.profile-avatar {
     }
   }
   
+  .card-header:first-child {
+    border-top-left-radius: 1rem;  /* or same value as .rounded-4 */
+    border-top-right-radius: 1rem;
+  }
