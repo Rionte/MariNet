@@ -5,7 +5,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from datetime import datetime
 import uuid
-from app import app, db, User, Post, Vote, Group, GroupPost, AiConversation, AiMessage, generate_ai_response, group_members
+from app import app, db, User, Post, Vote, Group, GroupPost, AiConversation, AiMessage, generate_ai_response, group_members, Tag
+import re
+from collections import Counter
 
 
 # Helper functions
@@ -124,7 +126,10 @@ def index():
 @app.route('/feed')
 def feed():
     posts = Post.query.order_by(Post.created_at.desc()).all()
-    return render_template('feed.html', posts=posts)
+    
+    trending = Tag.query.order_by(Tag.count.desc()).limit(5).all()
+
+    return render_template('feed.html', posts=posts, trending_tags=trending)
 
 @app.route('/terms')
 def terms():
@@ -137,6 +142,8 @@ def privacy():
 @app.route('/contact')
 def contact():
     return render_template('contact.html')
+
+trending_tags = Counter()
 
 @app.route('/create_post', methods=['POST'])
 @login_required
@@ -158,12 +165,21 @@ def create_post():
             image_url = save_image(image_file)
     
     new_post = Post(
-        content=content or '',  # Allow empty content if image is present
+        content=content or '', 
         image_url=image_url,
         user_id=current_user.id
     )
     
     db.session.add(new_post)
+    db.session.commit()
+    
+    hashtags = set(re.findall(r'#(\w+)', content))
+    for tag in hashtags:
+        existing = Tag.query.filter_by(name=tag).first()
+        if existing:
+            existing.count += 1
+        else:
+            db.session.add(Tag(name=tag))
     db.session.commit()
     
     flash('Post created successfully', 'success')

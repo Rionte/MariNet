@@ -124,19 +124,14 @@
                 </div>
             </div>
             
-            <div class="card border-0 rounded-4 shadow-sm">
+            <div class="card border-0 rounded-4 shadow-sm pb-3">
                 <div class="card-header bg-white border-0 pt-3">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-hash me-2"></i>Trending Tags</h5>
+                    <h5 class="mb-0 fw-bold text-center"></i>Trending Tags</h5>
                 </div>
-                <div class="card-body">
-                    <div class="d-flex flex-wrap gap-2">
-                        <a href="#" class="trending-tag" data-tag="Mathematics">#Mathematics</a>
-                        <a href="#" class="trending-tag" data-tag="Physics">#Physics</a>
-                        <a href="#" class="trending-tag" data-tag="Chemistry">#Chemistry</a>
-                        <a href="#" class="trending-tag" data-tag="Literature">#Literature</a>
-                        <a href="#" class="trending-tag" data-tag="History">#History</a>
-                        <a href="#" class="trending-tag" data-tag="ComputerScience">#ComputerScience</a>
-                    </div>
+                <div class="d-flex flex-wrap gap-2 justify-content-center ps-2 pe-2">
+                    {% for tag in trending_tags %}
+                        <a href="#" class="trending-tag" data-tag="{{ tag.name }}">#{{ tag.name }}</a>
+                    {% endfor %}
                 </div>
             </div>
         </div>
