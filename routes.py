@@ -23,7 +23,6 @@ def save_image(file):
         filename = secure_filename(f"{uuid.uuid4()}_{file.filename}")
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
-        # Return the path relative to static folder
         return '/static/uploads/' + filename
     return None
 
@@ -33,22 +32,17 @@ def process_mentions(content, post=None, group_post=None):
     
     print(f"Processing mentions in: {content}")
     
-    # Find all @username mentions using REGEX (yes hassan, you heard it right, REGEX twin)
     mentions = re.findall(r'@(\w+)', content)
     print(f"Found mentions: {mentions}")
     
     for username in mentions:
-        # Find mentioned user
         mentioned_user = User.query.filter_by(username=username).first()
         
-        # If user exists and is not the current user
         if mentioned_user and mentioned_user.id != current_user.id:
             print(f"Creating notification for user: {mentioned_user.username} (ID: {mentioned_user.id})")
-            # Create notification text based on post type
             post_type = "post" if post else "group post"
             notification_text = f"{current_user.username} mentioned you in a {post_type}"
             
-            # Create new notification
             new_notification = Notification(
                 user_id=mentioned_user.id,
                 sender_id=current_user.id,
@@ -64,7 +58,6 @@ def process_mentions(content, post=None, group_post=None):
         elif mentioned_user.id == current_user.id:
             print(f"Skipping self-mention: @{username}")
     
-    # add the notifications to the database 
     if mentions:
         db.session.commit()
         print("Committed notifications to database")
@@ -101,7 +94,6 @@ def register():
         email = request.form.get('email')
         password = request.form.get('password')
         
-        # Check if user exists
         user_by_email = User.query.filter_by(email=email).first()
         user_by_username = User.query.filter_by(username=username).first()
         
@@ -113,7 +105,6 @@ def register():
             flash('Username already taken', 'error')
             return render_template('register.html', error='Username already taken')
         
-        # Create new user
         new_user = User(
             username=username,
             email=email,
@@ -137,21 +128,17 @@ def logout():
     flash('You have been logged out', 'info')
     return redirect(url_for('login'))
 
-# Add delete post route
 @app.route('/delete_post/<post_id>', methods=['POST'])
 @login_required
 def delete_post(post_id):
     post = Post.query.get_or_404(post_id)
     
-    # Check if user is the owner of the post
     if post.user_id != current_user.id:
         flash('You can only delete your own posts', 'error')
         return redirect(url_for('feed'))
     
-    # Delete votes associated with the post
     Vote.query.filter_by(post_id=post_id).delete()
     
-    # Delete the post
     db.session.delete(post)
     db.session.commit()
     
@@ -241,7 +228,6 @@ def vote(post_id, vote_type):
     
     post = Post.query.get_or_404(post_id)
     
-    # Check if user already voted
     existing_vote = Vote.query.filter_by(
         post_id=post_id,
         user_id=current_user.id
@@ -249,14 +235,12 @@ def vote(post_id, vote_type):
     
     if existing_vote:
         if existing_vote.vote_type == vote_type:
-            # Remove vote if same type
             db.session.delete(existing_vote)
             if vote_type == 'upvote':
                 post.upvotes = max(0, post.upvotes - 1)
             else:
                 post.downvotes = max(0, post.downvotes - 1)
         else:
-            # Change vote type
             existing_vote.vote_type = vote_type
             if vote_type == 'upvote':
                 post.upvotes += 1
@@ -265,7 +249,6 @@ def vote(post_id, vote_type):
                 post.downvotes += 1
                 post.upvotes = max(0, post.upvotes - 1)
     else:
-        # Create new vote
         new_vote = Vote(
             post_id=post_id,
             user_id=current_user.id,
@@ -295,12 +278,10 @@ def group_vote(post_id, vote_type):
     
     post = GroupPost.query.get_or_404(post_id)
     
-    # Check if user is a member of the group
     group = Group.query.get(post.group_id)
     if not group.is_member(current_user):
         return jsonify({'error': 'You must be a member of the group to vote'}), 403
     
-    # Check if user already voted
     existing_vote = Vote.query.filter_by(
         group_post_id=post_id,
         user_id=current_user.id
@@ -308,14 +289,12 @@ def group_vote(post_id, vote_type):
     
     if existing_vote:
         if existing_vote.vote_type == vote_type:
-            # Remove vote if same type
             db.session.delete(existing_vote)
             if vote_type == 'upvote':
                 post.upvotes = max(0, post.upvotes - 1)
             else:
                 post.downvotes = max(0, post.downvotes - 1)
         else:
-            # Change vote type
             existing_vote.vote_type = vote_type
             if vote_type == 'upvote':
                 post.upvotes += 1
@@ -324,7 +303,6 @@ def group_vote(post_id, vote_type):
                 post.downvotes += 1
                 post.upvotes = max(0, post.upvotes - 1)
     else:
-        # Create new vote
         new_vote = Vote(
             group_post_id=post_id,
             user_id=current_user.id,
@@ -359,7 +337,6 @@ def settings():
         username = request.form.get('username')
         bio = request.form.get('bio')
         
-        # Check if username is taken by another user
         user_by_username = User.query.filter_by(username=username).first()
         if user_by_username and user_by_username.id != current_user.id:
             flash('Username already taken', 'error')
@@ -422,7 +399,6 @@ def groups():
 @app.route('/create_group', methods=['POST'])
 @login_required
 def create_group():
-    # Check if the request has JSON data or form data
     if request.is_json:
         data = request.get_json()
         name = data.get('name')
@@ -439,7 +415,6 @@ def create_group():
     if Group.query.filter_by(name=name).first():
         return jsonify({'error': 'Group name already exists'}), 400
     
-    # Create new group
     new_group = Group(
         name=name,
         description=description,
@@ -450,7 +425,6 @@ def create_group():
     db.session.add(new_group)
     db.session.commit()
     
-    # Add creator as admin member
     stmt = group_members.insert().values(
         user_id=current_user.id,
         group_id=new_group.id,
@@ -468,7 +442,6 @@ def create_group():
 def group_detail(group_id):
     group = Group.query.get_or_404(group_id)
     
-    # Get all members of the group with admin status
     members_data = db.session.query(User, group_members.c.is_admin) \
         .join(group_members, User.id == group_members.c.user_id) \
         .filter(group_members.c.group_id == group_id) \
@@ -484,10 +457,8 @@ def group_detail(group_id):
         for user, is_admin in members_data
     ]
     
-    # Get admin users
     admins = [member for member in members if member['is_admin']]
     
-    # Get group posts
     posts = GroupPost.query.filter_by(group_id=group_id).order_by(GroupPost.created_at.desc()).all()
     
     is_member = current_user.is_authenticated and group.is_member(current_user)
@@ -512,7 +483,6 @@ def join_group(group_id):
         flash('You are already a member of this group', 'info')
         return redirect(url_for('group_detail', group_id=group_id))
     
-    # Add user to group
     stmt = group_members.insert().values(
         user_id=current_user.id,
         group_id=group_id,
@@ -533,7 +503,6 @@ def leave_group(group_id):
         flash('You are not a member of this group', 'error')
         return redirect(url_for('group_detail', group_id=group_id))
     
-    # Check if user is the only admin
     admin_count = db.session.query(group_members) \
         .filter(group_members.c.group_id == group_id, group_members.c.is_admin == True) \
         .count()
@@ -542,7 +511,6 @@ def leave_group(group_id):
         flash('You cannot leave the group as you are the only admin', 'error')
         return redirect(url_for('group_detail', group_id=group_id))
     
-    # Remove user from group
     db.session.query(group_members) \
         .filter(group_members.c.user_id == current_user.id, group_members.c.group_id == group_id) \
         .delete(synchronize_session=False)
@@ -581,7 +549,7 @@ def create_group_post(group_id):
             image_url = save_image(image_file)
     
     new_post = GroupPost(
-        content=content or '',  # Allow empty content if image is present
+        content=content or '', 
         image_url=image_url,
         user_id=current_user.id,
         group_id=group_id
@@ -598,16 +566,13 @@ def create_group_post(group_id):
 @app.route('/ai-tutor')
 @login_required
 def ai_tutor():
-    # Get or create the user's active conversation
     conversation = AiConversation.query.filter_by(user_id=current_user.id).order_by(AiConversation.created_at.desc()).first()
     
     if not conversation:
-        # Create new conversation first and commit to get an ID
         conversation = AiConversation(user_id=current_user.id)
         db.session.add(conversation)
         db.session.commit()
         
-        # Now add initial AI message with instructions
         welcome_message = AiMessage(
             conversation_id=conversation.id,
             content="Hello! I'm your AI Tutor. How can I help you today?\n\nYou can ask me questions about Mathematics, Science, English, Literature, History, and many other subjects!",
@@ -628,7 +593,6 @@ def ai_tutor_send():
     if not message_content:
         return jsonify({'error': 'Message cannot be empty'}), 400
     
-    # Get or create conversation
     if conversation_id:
         conversation = AiConversation.query.get(conversation_id)
         if not conversation or conversation.user_id != current_user.id:
@@ -638,7 +602,6 @@ def ai_tutor_send():
         db.session.add(conversation)
         db.session.commit()
     
-    # Save user message
     user_message = AiMessage(
         conversation_id=conversation.id,
         content=message_content,
@@ -648,13 +611,10 @@ def ai_tutor_send():
     db.session.commit()
     
     try:
-        # Get conversation history for context
         conversation_history = AiMessage.query.filter_by(conversation_id=conversation.id).order_by(AiMessage.created_at).limit(10).all()
         
-        # Generate AI response using Gemini API
         ai_response = generate_ai_response(message_content, conversation_history)
         
-        # Save AI response
         ai_message = AiMessage(
             conversation_id=conversation.id,
             content=ai_response,
@@ -679,7 +639,6 @@ def ai_tutor_send():
             }
         })
     except Exception as e:
-        # If something fails, provide a graceful fallback
         fallback_response = "I'm sorry, I'm having trouble processing your request right now. Please try again in a moment."
         
         ai_message = AiMessage(
@@ -710,12 +669,10 @@ def ai_tutor_send():
 @app.route('/ai-tutor/clear', methods=['POST'])
 @login_required
 def clear_ai_conversation():
-    # Create a new conversation for the user
     new_conversation = AiConversation(user_id=current_user.id)
     db.session.add(new_conversation)
     db.session.commit()
     
-    # Add initial welcome message
     welcome_message = AiMessage(
         conversation_id=new_conversation.id,
         content="Hello! I'm your AI Tutor. How can I help you today?\n\nYou can ask me questions about Mathematics, Science, English, Literature, History, and many other subjects!",
@@ -729,10 +686,8 @@ def clear_ai_conversation():
 @app.route('/notifications')
 @login_required
 def notifications():
-    # Get user's notifications ordered by most recent first
     user_notifications = Notification.query.filter_by(user_id=current_user.id).order_by(Notification.created_at.desc()).all()
-    
-    # Mark all notifications as read
+
     for notification in user_notifications:
         notification.is_read = True
     db.session.commit()
@@ -742,7 +697,6 @@ def notifications():
 @app.route('/api/user-votes')
 @login_required
 def user_votes():
-    # Get all votes for the current user
     post_votes = Vote.query.filter_by(user_id=current_user.id, group_post_id=None).all()
     group_post_votes = Vote.query.filter_by(user_id=current_user.id).filter(Vote.group_post_id.isnot(None)).all()
     
@@ -760,7 +714,6 @@ def search_users():
     if not query or len(query) < 2:
         return jsonify([])
     
-    # Search for users by username or email
     users = User.query.filter(
         (User.username.ilike(f'%{query}%') | User.email.ilike(f'%{query}%'))
     ).limit(10).all()

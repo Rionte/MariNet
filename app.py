@@ -18,7 +18,6 @@ app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max upload
 app.config['GEMINI_API_KEY'] = 'AIzaSyA6G79HI5EwMl1xPBaqoZldk1qQIzfr-68'
 
-# Ensure upload directory exists
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 db = SQLAlchemy(app)
@@ -72,28 +71,20 @@ def group(group_id):
 @app.context_processor
 def inject_popular_groups():
     def get_popular_groups(limit=3):
-        # Query all groups with their member counts
         groups = Group.query.all()
-        # Sort groups by their member count (descending)
         groups_sorted = sorted(
             groups,
-            key=lambda g: g.members.count(),  # This properly counts the members
+            key=lambda g: g.members.count(),
             reverse=True
         )
-        # Return the top 'limit' groups
         return groups_sorted[:limit]
     return dict(get_popular_groups=get_popular_groups)
 
 def get_est_time():
-    # Get current UTC time
     utc_now = datetime.utcnow()
-    # Create Eastern timezone object
     eastern = pytz.timezone('US/Eastern')
-    # Convert UTC time to Eastern time
     est_now = utc_now.replace(tzinfo=pytz.utc).astimezone(eastern)
-    # Return the converted time
     return est_now
-# Association table for group memberships
 group_members = db.Table('group_members',
     db.Column('user_id', db.String(36), db.ForeignKey('user.id'), primary_key=True),
     db.Column('group_id', db.String(36), db.ForeignKey('group.id'), primary_key=True),
@@ -171,7 +162,7 @@ class Vote(db.Model):
     post_id = db.Column(db.String(36), db.ForeignKey('post.id'), nullable=True)
     group_post_id = db.Column(db.String(36), db.ForeignKey('group_post.id'), nullable=True)
     user_id = db.Column(db.String(36), db.ForeignKey('user.id'), nullable=False)
-    vote_type = db.Column(db.String(10), nullable=False)  # 'upvote' or 'downvote'
+    vote_type = db.Column(db.String(10), nullable=False)  
     created_at = db.Column(db.DateTime, default=get_est_time)
     
     post = db.relationship('Post', backref=db.backref('votes', lazy=True), foreign_keys=[post_id])
@@ -190,7 +181,7 @@ class AiMessage(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     conversation_id = db.Column(db.String(36), db.ForeignKey('ai_conversation.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    is_user = db.Column(db.Boolean, default=True)  # True for user message, False for AI response
+    is_user = db.Column(db.Boolean, default=True)  
     created_at = db.Column(db.DateTime, default=get_est_time)
 
 class Notification(db.Model):
@@ -200,7 +191,7 @@ class Notification(db.Model):
     content = db.Column(db.Text, nullable=False)
     post_id = db.Column(db.String(36), db.ForeignKey('post.id'), nullable=True)
     group_post_id = db.Column(db.String(36), db.ForeignKey('group_post.id'), nullable=True)
-    notification_type = db.Column(db.String(20), nullable=False)  # 'mention', could add more types later
+    notification_type = db.Column(db.String(20), nullable=False)  
     is_read = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=get_est_time)
     
@@ -216,14 +207,11 @@ def load_user(user_id):
 
 # GEMINI API STUFF
 def generate_ai_response(user_message, conversation_history=None):
-    # Use Gemini API to generate a response
     api_key = app.config['GEMINI_API_KEY']
-    api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}" # to lazy to use the library :(
+    api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
     
-    # Prepare the request payload
     parts = [{"text": user_message}]
     
-    # Create a simpler payload format for the flash model
     payload = {
         "contents": [
             {
@@ -233,43 +221,35 @@ def generate_ai_response(user_message, conversation_history=None):
     }
     
     try:
-        # Send request to Gemini API
         response = requests.post(
             api_url,
             headers={"Content-Type": "application/json"},
             data=json.dumps(payload)
         )
         
-        # Check if request was successful
         if response.status_code == 200:
             response_data = response.json()
             print("Gemini API response:", response_data)  # Debug
             
-            # Extract the response text from the Gemini API response
             ai_response = response_data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
             
-            # If no response was generated, use a fallback
             if not ai_response:
                 return "I'm sorry, I couldn't generate a response at the moment. Could you try rephrasing your question?"
             
             return ai_response
         else:
-            # Log the error for MORE debugging
             print(f"Gemini API error: {response.status_code} - {response.text}")
             return "I'm having trouble connecting to my knowledge base right now. Please try again in a moment."
     
     except Exception as e:
-        # Log exception for MOREEEE debugging
         print(f"Error using Gemini API: {str(e)}")
         return "Sorry, I encountered an error while processing your request. Please try again later."
 
-# Import routes after models to avoid circular imports
 from routes import *
 
 # ADMIN CREDS FOR TESTING
 with app.app_context():
     db.create_all()
-    # Create admin user if it doesn't exist
     admin = User.query.filter_by(email='admin@marinet.edu').first()
     if not admin:
         admin = User(
@@ -279,7 +259,7 @@ with app.app_context():
             avatar_url='/static/default_admin_avatar.jpg'
         )
         db.session.add(admin)
-        db.session.commit()  # Commit to get the admin ID
+        db.session.commit()  
         
         # Sample groups data
         groups = [
@@ -300,7 +280,6 @@ with app.app_context():
             }
         ]
         
-        # Get the admin user ID
         admin = User.query.filter_by(email='admin@marinet.edu').first()
         
         for group_data in groups:
@@ -314,7 +293,6 @@ with app.app_context():
         
         db.session.commit()
         
-        # Add admin as member of all groups
         for group in Group.query.all():
             stmt = group_members.insert().values(
                 user_id=admin.id,
@@ -327,7 +305,6 @@ with app.app_context():
 
 app.run(debug=True)
 
-# Add Jinja2 filters
 @app.template_filter('nl2br')
 def nl2br(text):
     """Convert newlines to <br> tags"""

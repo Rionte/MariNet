@@ -1,13 +1,11 @@
 // MariNet main JavaScript file
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Bootstrap tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function(tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
     
-    // Flash message auto-dismiss
     const flashMessages = document.querySelectorAll('.alert-dismissible');
     flashMessages.forEach(function(message) {
         setTimeout(function() {
@@ -15,10 +13,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (closeButton) {
                 closeButton.click();
             }
-        }, 5000); // Auto-dismiss after 5 seconds
+        }, 5000);
     });
     
-    // Check for unread notifications periodically
     function checkUnreadNotifications() {
         const notificationsLink = document.querySelector('a[href*="notifications"]');
         if (!notificationsLink) {
@@ -53,18 +50,15 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error fetching notification count:', error));
     }
     
-    // Check notifications initially and then every 30 seconds
     if (document.querySelector('a[href*="notifications"]')) {
         checkUnreadNotifications();
         setInterval(checkUnreadNotifications, 30000);
     }
     
-    // Get current vote status and apply active classes to vote buttons
     function checkVoteStatus() {
         const voteBtns = document.querySelectorAll('.vote-btn');
         if (voteBtns.length === 0) return;
         
-        // Make a single request to get all votes for the current user
         fetch('/api/user-votes')
             .then(response => response.json())
             .then(data => {
@@ -80,12 +74,10 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error fetching votes:', error));
     }
     
-    // Try to run vote status check if user is logged in
     if (document.querySelector('.vote-btn')) {
         checkVoteStatus();
     }
     
-    // Format dates to relative time (e.g., "2 hours ago")
     function formatRelativeTime() {
         const dateElements = document.querySelectorAll('.relative-time');
         
@@ -101,7 +93,6 @@ document.addEventListener('DOMContentLoaded', function() {
             let relativeTime;
             
             if (diffDay > 30) {
-                // Format as regular date for older posts
                 relativeTime = timestamp.toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
@@ -121,11 +112,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Format dates on page load
     formatRelativeTime();
 });
 
-// Functions to handle image preview before upload
 function previewImage(inputId, imgId) {
     const input = document.getElementById(inputId);
     const imgPreview = document.getElementById(imgId);
@@ -145,26 +134,20 @@ function previewImage(inputId, imgId) {
         }
     });
 } 
-// Add this script to your main JavaScript file or in a script tag at the bottom of your HTML
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Check for saved theme preference or use device preference
     const savedTheme = localStorage.getItem('theme') || 
                       (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     
-    // Apply the theme
     document.documentElement.setAttribute('data-theme', savedTheme);
     updateThemeIcon(savedTheme);
     
-    // Add event listener to theme toggle button
     document.getElementById('theme-toggle').addEventListener('click', function() {
         const currentTheme = document.documentElement.getAttribute('data-theme');
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         
-        // Save theme preference
         localStorage.setItem('theme', newTheme);
         
-        // Apply new theme
         document.documentElement.setAttribute('data-theme', newTheme);
         updateThemeIcon(newTheme);
     });
