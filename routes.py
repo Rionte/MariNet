@@ -7,6 +7,7 @@ from datetime import datetime
 import uuid
 from app import app, db, User, Post, Vote, Group, GroupPost, AiConversation, AiMessage, generate_ai_response, group_members
 
+
 # Helper functions
 def allowed_file(filename):
     return '.' in filename and \

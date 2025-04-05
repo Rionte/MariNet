@@ -1,16 +1,4 @@
-:root {
-    --bg-color: #f9fafb !important;
-    --card-bg: #ffffff !important;
-    --primary-color: #4f46e5 !important;
-    --secondary-color: #10b981 !important;
-    --text-color: #111827 !important;
-    --text-light: #6b7280 !important;
-    --border-color: #e5e7eb !important;
-    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-    --radius: 12px !important;
-    --transition: all 0.3s ease !important;
-}
+
 
 /* Main container */
 .tutor-wrapper {
@@ -165,6 +153,9 @@
     font-size: 1rem !important;
     white-space: pre-wrap !important;
     word-wrap: break-word !important;
+    overflow: visible !important;
+    overflow-x: hidden !important;
+    max-width: 100% !important;
 }
 
 .message-time {
@@ -304,6 +295,7 @@
     padding: 1rem !important;
     overflow-x: auto !important;
     margin: 0.75rem 0 !important;
+    max-width: 100% !important;
 }
 
 .markdown-content pre code {
@@ -325,6 +317,12 @@
 .markdown-content ul, .markdown-content ol {
     padding-left: 1.5rem !important;
     margin: 0.5rem 0 !important;
+}
+
+.markdown-content {
+    overflow: visible !important; 
+    overflow-x: hidden !important;
+    max-width: 100% !important;
 }
 
 /* Responsive design */
