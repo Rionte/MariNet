@@ -687,6 +687,11 @@ def search_users():
     
     return jsonify(results)
 
+@app.route('/terms-offline.html')
+def terms_offline():
+    return render_template('terms-offline.html')
+
+
 # Error handlers
 @app.errorhandler(404)
 def page_not_found(e):
