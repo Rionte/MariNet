@@ -17,7 +17,7 @@
                     </div>
                     <form action="{{ url_for('create_post') }}" method="post" enctype="multipart/form-data">
                         <div class="mb-3">
-                            <textarea class="form-control border-0 bg-light rounded-3" id="content" name="content" rows="3" placeholder="What's on your mind?"></textarea>
+                            <textarea required class="form-control border-0 bg-light rounded-3" id="content" name="content" rows="3" placeholder="What's on your mind?"></textarea>
                         </div>
                         <div class="image-preview-container mb-3 rounded-4 d-none">
                             <div class="position-relative">
