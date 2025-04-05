@@ -67,15 +67,15 @@
                                 <div class="user-email">{{ current_user.email }}</div>
                             </div>
                         </a>
-                        <a href="{{ url_for('settings') }}" class="settings-link">
-                            <i class="bi bi-gear"></i>
-                        </a>
                     </div>
                     
                     <div class="logout-section">
                         <a href="{{ url_for('logout') }}" class="logout-link">
                             <i class="bi bi-box-arrow-right"></i>
                             <span>Sign Out</span>
+                        </a>
+                        <a href="{{ url_for('settings') }}" class="settings-link">
+                            <i class="bi bi-gear"></i>
                         </a>
                     </div>
                 </div>
