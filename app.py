@@ -239,7 +239,7 @@ if __name__ == '__main__':
                 {
                     'name': 'Science Club',
                     'description': 'Discuss scientific discoveries and experiments.',
-                    'icon': 'flask'
+                    'icon': 'lightbulb'
                 },
                 {
                     'name': 'Literature Society',
