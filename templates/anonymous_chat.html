@@ -12,11 +12,12 @@
         <h3>Anonymous Chat</h3>
         <div class="chat-tools">
             <div class="anonymous-identity">
-                You are: <span class="badge bg-primary">{{ anonymous_name }}</span>
+                <span class="me-1">You are:</span>
+                <span class="badge bg-primary">{{ anonymous_name }}</span>
                 <a href="{{ url_for('reset_anonymous_identity') }}" class="btn btn-sm btn-outline-secondary ms-2">
                     <i class="bi bi-arrow-repeat"></i> New Identity
                 </a>
-            </div>
+            </div>            
         </div>
     </div>
 

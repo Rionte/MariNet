@@ -288,6 +288,10 @@
     font-size: 0.875em !important;
 }
 
+.subject-item:hover span {
+    color: black;
+}
+
 .markdown-content pre {
     background-color: #f9fafb !important;
     border-radius: 0.5rem !important;

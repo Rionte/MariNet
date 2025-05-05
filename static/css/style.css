@@ -418,6 +418,25 @@ a {
     border-radius: var(--border-radius);
     overflow: hidden;
 }
+/* Always-colored vote icons */
+.btn-vote.upvote i {
+    color: var(--upvote-color);
+}
+
+.btn-vote.downvote i {
+    color: var(--downvote-color);
+}
+
+/* Always-colored vote arrows and counts */
+.btn-vote.upvote i,
+.btn-vote .upvote-count {
+    color: var(--upvote-color);
+}
+
+.btn-vote.downvote i,
+.btn-vote .downvote-count {
+    color: var(--downvote-color);
+}
 
 .post-image img {
     width: 100%;
