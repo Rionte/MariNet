@@ -16,7 +16,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///marinet.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max upload
-app.config['GEMINI_API_KEY'] = 'AIzaSyA6G79HI5EwMl1xPBaqoZldk1qQIzfr-68'
+app.config['GEMINI_API_KEY'] = 'ADD_YOUR_GEMINI_KEY'
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
