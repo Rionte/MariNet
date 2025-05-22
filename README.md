@@ -27,7 +27,7 @@ MariNet is a social learning platform built with Flask, allowing users to connec
 ### 1. Clone the Repository
 
 bash
-- git clone https://github.com/yourusername/marinet.git
+- git clone https://github.com/rionte/marinet.git
 - cd marinet
 
 ### 2. Install all dependencies
